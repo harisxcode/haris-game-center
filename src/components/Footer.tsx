@@ -27,6 +27,9 @@ export function Footer() {
             <a href="https://harisxcode.github.io/flappy-bird-arcade/" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">
               Flappy Bird Arcade
             </a>
+            <a href="https://harisxcode.github.io/meme-mania/" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">
+              Meme Mania
+            </a>
             <a href={GAME_CENTER_REPO} target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">
               GitHub Repo
             </a>

@@ -1,4 +1,4 @@
-import { Play, Github, Gamepad2, ArrowUpRight, Flame } from 'lucide-react';
+import { Play, Github, Gamepad2, ArrowUpRight, Flame, Sparkles } from 'lucide-react';
 import { GAME_CENTER_REPO, Game, heroBanner } from '../data/games';
 
 interface HeroSectionProps {
@@ -9,6 +9,8 @@ interface HeroSectionProps {
 export function HeroSection({ games, onPlayGame }: HeroSectionProps) {
   const nitroGame = games.find((g) => g.id === 'nitro-league') || games[0];
   const flappyGame = games.find((g) => g.id === 'flappy-bird-arcade') || games[1];
+  const memeGame = games.find((g) => g.id === 'meme-mania') || games[2];
+  const liveCount = games.filter((g) => g.status === 'live').length;
 
   return (
     <section className="relative overflow-hidden pt-8 pb-16 lg:pt-14 lg:pb-24 border-b border-slate-800/80">
@@ -35,13 +37,13 @@ export function HeroSection({ games, onPlayGame }: HeroSectionProps) {
             </h1>
 
             <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
-              Welcome to Haris Game Center—a unified home for high-octane racing and classic retro arcade games. Play Nitro League and Flappy Bird directly in your browser with zero installs, or inspect the open-source code on GitHub.
+              Welcome to Haris Game Center—a unified home for arcade racers, retro tap classics, and viral meme reflex challenges. Play Nitro League, Flappy Bird, and Meme Mania directly in your browser with zero installs, or inspect the open-source code on GitHub.
             </p>
 
             {/* Unboxed Metadata Stats Strip */}
             <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-400 pt-2 pb-2">
               <div className="flex items-center gap-2">
-                <span className="font-bold text-white tabular-nums text-base">2</span>
+                <span className="font-bold text-white tabular-nums text-base">{liveCount}</span>
                 <span>Active Games</span>
               </div>
               <span aria-hidden="true" className="text-slate-700">·</span>
@@ -60,28 +62,38 @@ export function HeroSection({ games, onPlayGame }: HeroSectionProps) {
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
                 onClick={() => onPlayGame(nitroGame)}
-                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm transition-all duration-200 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 cursor-pointer"
+                className="inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-xs sm:text-sm transition-all duration-200 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 cursor-pointer"
               >
                 <Play className="w-4 h-4 fill-white" />
-                <span>Play Nitro League</span>
+                <span>Nitro League</span>
               </button>
 
               <button
                 onClick={() => onPlayGame(flappyGame)}
-                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-100 hover:text-white border border-slate-700 hover:border-slate-600 font-semibold text-sm transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-100 hover:text-white border border-slate-700 hover:border-slate-600 font-semibold text-xs sm:text-sm transition-colors cursor-pointer"
               >
                 <Gamepad2 className="w-4 h-4 text-cyan-400" />
-                <span>Play Flappy Bird</span>
+                <span>Flappy Bird</span>
               </button>
+
+              {memeGame && (
+                <button
+                  onClick={() => onPlayGame(memeGame)}
+                  className="inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-100 hover:text-white border border-slate-700 hover:border-slate-600 font-semibold text-xs sm:text-sm transition-colors cursor-pointer"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <span>Meme Mania</span>
+                </button>
+              )}
 
               <a
                 href={GAME_CENTER_REPO}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900/60 font-medium text-sm transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900/60 font-medium text-xs sm:text-sm transition-colors"
               >
                 <Github className="w-4 h-4" />
-                <span>Game Center Repo</span>
+                <span>Repo Hub</span>
                 <ArrowUpRight className="w-3.5 h-3.5 text-slate-500" />
               </a>
             </div>

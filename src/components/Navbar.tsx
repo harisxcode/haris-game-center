@@ -36,6 +36,9 @@ export function Navbar({ onReplayIntro, onOpenAddModal }: NavbarProps) {
           <a href="#flappy-bird" className="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">
             Flappy Bird
           </a>
+          <a href="#meme-mania" className="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">
+            Meme Mania
+          </a>
           <a href="#repositories" className="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">
             Repositories
           </a>
@@ -102,6 +105,13 @@ export function Navbar({ onReplayIntro, onOpenAddModal }: NavbarProps) {
             className="block px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg"
           >
             Flappy Bird Arcade
+          </a>
+          <a
+            href="#meme-mania"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg"
+          >
+            Meme Mania
           </a>
           <a
             href="#repositories"

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Play, Github, ExternalLink, Heart, Layers, Terminal } from 'lucide-react';
+import { Play, Github, ExternalLink, Heart, Layers, Terminal, Globe } from 'lucide-react';
 import { Game } from '../data/games';
 
 interface GameCardProps {
@@ -14,7 +14,7 @@ export function GameCard({ game, onPlayModal, isFavorite, onToggleFavorite }: Ga
 
   return (
     <div
-      id={game.id === 'nitro-league' ? 'nitro-league' : game.id === 'flappy-bird-arcade' ? 'flappy-bird' : undefined}
+      id={game.id === 'flappy-bird-arcade' ? 'flappy-bird' : game.id}
       className="group relative flex flex-col rounded-2xl bg-[#091124] border border-slate-800/90 hover:border-cyan-500/40 transition-all duration-300 overflow-hidden shadow-lg shadow-black/40 hover:shadow-cyan-950/20"
     >
       {/* Thumbnail Banner Area */}
@@ -78,9 +78,9 @@ export function GameCard({ game, onPlayModal, isFavorite, onToggleFavorite }: Ga
         <div className="flex items-center gap-2 text-xs text-slate-400">
           <span>{game.releaseYear}</span>
           <span aria-hidden="true" className="text-slate-700">·</span>
-          <span>{game.status === 'live' ? 'Live on GitHub Pages' : 'Under Development'}</span>
+          <span>{game.status === 'live' ? (game.isExternal ? 'External Iframe Game' : 'Live on GitHub Pages') : 'Under Development'}</span>
           <span aria-hidden="true" className="text-slate-700">·</span>
-          <span>Harisxcode</span>
+          <span>{game.isExternal ? 'Web Arcade' : 'Harisxcode'}</span>
         </div>
 
         {/* Title and Tagline */}
@@ -161,16 +161,16 @@ export function GameCard({ game, onPlayModal, isFavorite, onToggleFavorite }: Ga
             </div>
           )}
 
-          {/* Repository Link */}
+          {/* Repository or External Host Link */}
           <a
             href={game.repoUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 text-xs font-medium transition-colors"
-            title="Inspect project repository on GitHub"
+            title={game.isExternal ? 'Visit external host site' : 'Inspect project repository on GitHub'}
           >
-            <Github className="w-3.5 h-3.5" />
-            <span>Repository</span>
+            {game.isExternal ? <Globe className="w-3.5 h-3.5 text-cyan-400" /> : <Github className="w-3.5 h-3.5" />}
+            <span>{game.isExternal ? 'Host Site' : 'Repository'}</span>
           </a>
         </div>
 

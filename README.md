@@ -6,6 +6,7 @@ Interactive landing hub for Haris's arcade and racing web games, featuring **Nit
 
 - **Nitro League**: [Play Game](https://harisxcode.github.io/nitro-league/) · [GitHub Repo](https://github.com/harisxcode/nitro-league)
 - **Flappy Bird Arcade**: [Play Game](https://harisxcode.github.io/flappy-bird-arcade/) · [GitHub Repo](https://github.com/harisxcode/flappy-bird-arcade)
+- **Meme Mania**: [Play Game](https://harisxcode.github.io/meme-mania/) · [GitHub Repo](https://github.com/harisxcode/meme-mania)
 
 ---
 

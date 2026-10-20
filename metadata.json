@@ -1,6 +1,6 @@
 {
   "name": "Haris Game Center",
-  "description": "Interactive landing hub for Haris's arcade and racing web games, featuring Nitro League and Flappy Bird Arcade with direct play links and open source repositories.",
+  "description": "Interactive landing hub for Haris's arcade and racing web games, featuring Nitro League, Flappy Bird Arcade, and Meme Mania with direct play links and open source repositories.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

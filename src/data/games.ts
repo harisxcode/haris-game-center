@@ -2,8 +2,9 @@ import nitroThumb from '../assets/images/thumb_nitro_league_1791725027525.jpg';
 import flappyThumb from '../assets/images/thumb_flappy_arcade_1791725038441.jpg';
 import heroBanner from '../assets/images/hero_gaming_center_1791725017457.jpg';
 import mascotLogo from '../assets/images/mascot_game_center_1791725047626.jpg';
+import memeManiaThumb from '../assets/images/thumb_meme_mania_1792447637658.jpg';
 
-export { nitroThumb, flappyThumb, heroBanner, mascotLogo };
+export { nitroThumb, flappyThumb, heroBanner, mascotLogo, memeManiaThumb };
 
 export interface GameControl {
   key: string;
@@ -16,7 +17,7 @@ export interface Game {
   tagline: string;
   description: string;
   genre: 'Arcade Racing' | 'Retro Arcade' | 'Action Adventure' | 'Puzzle & Strategy';
-  category: 'racing' | 'arcade' | 'action';
+  category: 'racing' | 'arcade' | 'meme' | 'action';
   status: 'live' | 'upcoming';
   playUrl: string;
   repoUrl: string;
@@ -27,6 +28,8 @@ export interface Game {
   releaseYear: string;
   techStack: string[];
   isFeatured?: boolean;
+  isExternal?: boolean;
+  iframeUrl?: string;
 }
 
 export const INITIAL_GAMES: Game[] = [
@@ -83,6 +86,33 @@ export const INITIAL_GAMES: Game[] = [
     ],
     releaseYear: '2025',
     techStack: ['HTML5 Canvas', 'Vanilla JS / TS', 'Local Storage Highscores', 'GitHub Pages'],
+    isFeatured: true
+  },
+  {
+    id: 'meme-mania',
+    title: 'Meme Mania',
+    tagline: 'Fast-paced viral internet meme challenges & arcade reflex mini-games',
+    description: 'Step into the wild world of web culture with Meme Mania. Test your meme knowledge, reaction speeds, and comedic timing across rapid-fire arcade mini-games and viral challenges.',
+    genre: 'Retro Arcade',
+    category: 'meme',
+    status: 'live',
+    playUrl: 'https://harisxcode.github.io/meme-mania/',
+    repoUrl: 'https://github.com/harisxcode/meme-mania',
+    thumbnailUrl: memeManiaThumb,
+    features: [
+      'Rapid-fire arcade challenges celebrating iconic viral meme culture',
+      'Multi-tiered reflex tests with escalating speed and combo multipliers',
+      'Vibrant retro-arcade neon visuals and nostalgic sound effects',
+      'Smooth keyboard and mobile touchscreen tap support'
+    ],
+    controls: [
+      { key: 'Space / Click', action: 'Tap / Confirm Reaction' },
+      { key: 'A / D (← / →)', action: 'Select Choice / Move' },
+      { key: 'R', action: 'Instant Restart Round' },
+      { key: 'M', action: 'Toggle Audio SFX' }
+    ],
+    releaseYear: '2025',
+    techStack: ['HTML5 Canvas', 'TypeScript / JavaScript', 'Web Audio API', 'GitHub Pages'],
     isFeatured: true
   },
   {

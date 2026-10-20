@@ -29,6 +29,15 @@ export function DeveloperHub({ onOpenAddModal }: { onOpenAddModal: () => void })
       url: 'https://github.com/harisxcode/flappy-bird-arcade',
       stars: 'Live',
       tech: 'Vanilla JS / TS · Canvas 2D'
+    },
+    {
+      name: 'meme-mania',
+      fullName: 'harisxcode/meme-mania',
+      role: 'Viral Meme Arcade Game',
+      desc: 'Fast-paced arcade reflex mini-games and trivia challenges celebrating iconic internet pop-culture and viral memes.',
+      url: 'https://github.com/harisxcode/meme-mania',
+      stars: 'Live',
+      tech: 'HTML5 Canvas · TypeScript · Web Audio'
     }
   ];
 
@@ -65,8 +74,8 @@ export function DeveloperHub({ onOpenAddModal }: { onOpenAddModal: () => void })
           </div>
         </div>
 
-        {/* 3 Repositories Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* 4 Repositories Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {repos.map((repo, idx) => (
             <div
               key={idx}

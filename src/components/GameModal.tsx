@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Maximize2, Minimize2, RotateCcw, ExternalLink, Github, Terminal } from 'lucide-react';
+import { X, Maximize2, Minimize2, RotateCcw, ExternalLink, Github, Terminal, Globe, AlertCircle } from 'lucide-react';
 import { Game } from '../data/games';
 
 interface GameModalProps {
@@ -45,6 +45,8 @@ export function GameModal({ game, onClose }: GameModalProps) {
     setIframeKey((prev) => prev + 1);
   };
 
+  const iframeSrc = game.iframeUrl || game.playUrl;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md">
       <div
@@ -61,6 +63,11 @@ export function GameModal({ game, onClose }: GameModalProps) {
             <span className="hidden sm:inline text-xs text-slate-400 font-mono">
               · {game.genre}
             </span>
+            {game.isExternal && (
+              <span className="hidden sm:inline-block text-[10px] font-mono text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded">
+                External Iframe Game
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
@@ -87,23 +94,36 @@ export function GameModal({ game, onClose }: GameModalProps) {
               href={game.playUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-cyan-300 transition-colors"
-              title="Open full page"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm"
+              title="Open full page in dedicated tab"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span>Full Tab</span>
+              <span className="hidden sm:inline">Launch Fullscreen Tab</span>
+              <span className="sm:hidden">Open</span>
             </a>
 
-            {/* View Repo */}
-            <a
-              href={game.repoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-              title="View repository on GitHub"
-            >
-              <Github className="w-4 h-4" />
-            </a>
+            {/* View Repo or External Source */}
+            {game.isExternal ? (
+              <a
+                href={game.playUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                title="View original host site"
+              >
+                <Globe className="w-4 h-4" />
+              </a>
+            ) : (
+              <a
+                href={game.repoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                title="View repository on GitHub"
+              >
+                <Github className="w-4 h-4" />
+              </a>
+            )}
 
             {/* Close modal */}
             <button
@@ -116,15 +136,36 @@ export function GameModal({ game, onClose }: GameModalProps) {
           </div>
         </div>
 
+        {/* External Game helper notice if external */}
+        {game.isExternal && (
+          <div className="bg-blue-950/40 border-b border-blue-900/40 px-4 py-2 flex items-center justify-between text-xs text-slate-300">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+              <span className="text-[11px] sm:text-xs">
+                Hosted via external iframe. If your browser blocks embedded Google Sites view, click <strong className="text-white">Launch Fullscreen Tab</strong> above.
+              </span>
+            </div>
+            <a
+              href={game.playUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-1 text-[11px] text-cyan-400 hover:underline font-medium shrink-0 ml-2"
+            >
+              <span>Direct Link</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        )}
+
         {/* Embedded Game Iframe Viewport */}
         <div className="flex-1 w-full bg-black relative flex items-center justify-center overflow-hidden">
-          {game.playUrl ? (
+          {iframeSrc ? (
             <iframe
               key={iframeKey}
-              src={game.playUrl}
+              src={iframeSrc}
               title={game.title}
               className="w-full h-full border-0"
-              allow="accelerometer; autoplay; encrypted-media; gyroscope"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
             />
           ) : (
@@ -160,7 +201,7 @@ export function GameModal({ game, onClose }: GameModalProps) {
           </div>
 
           <div className="text-[11px] text-slate-400 shrink-0">
-            Esc to exit · Powered by GitHub Pages
+            Esc to exit · {game.isExternal ? 'External Iframe Integration' : 'Powered by GitHub Pages'}
           </div>
         </div>
       </div>
