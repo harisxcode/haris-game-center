@@ -13,13 +13,16 @@ import {
   Heart,
   Clock,
   ArrowDownAZ,
-  Sparkles
+  Sparkles,
+  Cloud,
+  BrainCircuit,
+  Layers
 } from 'lucide-react';
 import { Game } from '../data/games';
 
-export type CategoryFilter = 'all' | 'action' | 'racing' | 'arcade' | 'meme' | 'favorites' | 'upcoming';
+export type CategoryFilter = 'all' | 'racing' | 'cloud' | 'arcade' | 'action' | 'casual' | 'puzzle' | 'favorites' | 'upcoming';
 export type SortOption = 'featured' | 'az' | 'newest';
-export type ViewMode = 'grid' | 'compact';
+export type ViewMode = 'shelves' | 'grid' | 'compact';
 
 interface GameFilterControlsProps {
   games: Game[];
@@ -82,10 +85,12 @@ export function GameFilterControls({
 
   const categories: { id: CategoryFilter; label: string; icon: typeof Gamepad2; count: number }[] = [
     { id: 'all', label: 'All Categories', icon: SlidersHorizontal, count: games.length },
-    { id: 'action', label: 'Action & Cloud', icon: Flame, count: games.filter(g => g.category === 'action').length },
     { id: 'racing', label: 'Racing & Driving', icon: Car, count: games.filter(g => g.category === 'racing').length },
-    { id: 'arcade', label: 'Classic Arcade', icon: Gamepad2, count: games.filter(g => g.category === 'arcade').length },
-    { id: 'meme', label: 'Meme & Viral', icon: Laugh, count: games.filter(g => g.category === 'meme').length },
+    { id: 'cloud', label: 'Cloud & Streaming', icon: Cloud, count: games.filter(g => g.category === 'cloud').length },
+    { id: 'arcade', label: 'Arcade & Retro', icon: Gamepad2, count: games.filter(g => g.category === 'arcade').length },
+    { id: 'action', label: 'Action & Platformer', icon: Flame, count: games.filter(g => g.category === 'action').length },
+    { id: 'casual', label: 'Casual & Viral', icon: Laugh, count: games.filter(g => g.category === 'casual' || (g.category as string) === 'meme').length },
+    { id: 'puzzle', label: 'Puzzle & Strategy', icon: BrainCircuit, count: games.filter(g => g.category === 'puzzle').length },
     { id: 'favorites', label: 'My Favorites', icon: Heart, count: favoritesCount },
     { id: 'upcoming', label: 'In Development', icon: Clock, count: games.filter(g => g.status === 'upcoming').length }
   ];
@@ -111,7 +116,7 @@ export function GameFilterControls({
           <input
             ref={searchInputRef}
             type="text"
-            placeholder="Search games, genres, or keywords..."
+            placeholder="Search titles, universal categories, mechanics..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="w-full pl-10 pr-16 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 transition-all"
@@ -121,7 +126,7 @@ export function GameFilterControls({
             {searchQuery ? (
               <button
                 onClick={() => onSearchChange('')}
-                className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800"
+                className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer"
                 title="Clear search"
               >
                 <X className="w-3.5 h-3.5" />
@@ -137,7 +142,7 @@ export function GameFilterControls({
         {/* Right Side: Category Dropdown + Sort + View Toggle */}
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           
-          {/* Category Dropdown */}
+          {/* Universal Category Dropdown */}
           <div className="relative" ref={categoryRef}>
             <button
               onClick={() => {
@@ -226,8 +231,21 @@ export function GameFilterControls({
             )}
           </div>
 
-          {/* View Mode Toggle: Grid vs Compact List */}
+          {/* 3 View Modes: Category Shelves, Grid, Compact List */}
           <div className="flex items-center p-1 bg-slate-950 rounded-xl border border-slate-800">
+            <button
+              onClick={() => onViewModeChange('shelves')}
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                viewMode === 'shelves' 
+                  ? 'bg-cyan-500 text-slate-950 shadow-sm' 
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title="Organized by Category Shelves"
+              aria-label="Category Shelves View"
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Shelves</span>
+            </button>
             <button
               onClick={() => onViewModeChange('grid')}
               className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
@@ -261,12 +279,16 @@ export function GameFilterControls({
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400 px-1">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-mono text-cyan-400 font-semibold tabular-nums">
-            {totalFilteredCount} {totalFilteredCount === 1 ? 'game' : 'games'} available
+            {totalFilteredCount} {totalFilteredCount === 1 ? 'game' : 'games'}
           </span>
           <span aria-hidden="true" className="text-slate-700">·</span>
           <span>Category: <strong className="text-slate-200">{currentCategory.label}</strong></span>
           <span aria-hidden="true" className="text-slate-700">·</span>
-          <span>View: <strong className="text-slate-200">{viewMode === 'grid' ? 'Grid Showcase' : 'Compact Directory'}</strong></span>
+          <span>
+            Layout: <strong className="text-slate-200">
+              {viewMode === 'shelves' ? 'Category Shelves' : viewMode === 'grid' ? 'Grid Cards' : 'Directory List'}
+            </strong>
+          </span>
 
           {searchQuery && (
             <>

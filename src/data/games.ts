@@ -12,13 +12,68 @@ export interface GameControl {
   action: string;
 }
 
+export type GameCategory = 'racing' | 'arcade' | 'action' | 'cloud' | 'casual' | 'puzzle' | 'meme';
+
+export interface CategoryMeta {
+  id: 'racing' | 'arcade' | 'action' | 'cloud' | 'casual' | 'puzzle';
+  title: string;
+  shortLabel: string;
+  tagline: string;
+  iconName: string;
+}
+
+export const UNIVERSAL_CATEGORIES: CategoryMeta[] = [
+  {
+    id: 'racing',
+    title: 'Racing & Driving',
+    shortLabel: 'Racing',
+    tagline: 'High-speed circuits, precision drift physics & time trials',
+    iconName: 'Car'
+  },
+  {
+    id: 'cloud',
+    title: 'Cloud & Streaming',
+    shortLabel: 'Cloud Streaming',
+    tagline: 'Instant 3D cloud gaming worlds powered by now.gg with zero install',
+    iconName: 'Cloud'
+  },
+  {
+    id: 'arcade',
+    title: 'Arcade & Retro',
+    shortLabel: 'Arcade',
+    tagline: 'Classic 2D coin-op action, pixel precision & high-score reflex tests',
+    iconName: 'Gamepad2'
+  },
+  {
+    id: 'casual',
+    title: 'Casual & Viral',
+    shortLabel: 'Casual & Meme',
+    tagline: 'Viral meme challenges, party reflex minigames & quick fun',
+    iconName: 'Laugh'
+  },
+  {
+    id: 'action',
+    title: 'Action & Platformer',
+    shortLabel: 'Action',
+    tagline: 'Skill-based movement, cyber platforming & obstacle runs',
+    iconName: 'Flame'
+  },
+  {
+    id: 'puzzle',
+    title: 'Puzzle & Strategy',
+    shortLabel: 'Puzzle & Strategy',
+    tagline: 'Logic puzzles, tactical planning & cerebral challenges',
+    iconName: 'BrainCircuit'
+  }
+];
+
 export interface Game {
   id: string;
   title: string;
   tagline: string;
   description: string;
-  genre: 'Arcade Racing' | 'Retro Arcade' | 'Action Adventure' | 'Puzzle & Strategy';
-  category: 'racing' | 'arcade' | 'meme' | 'action';
+  genre: 'Arcade Racing' | 'Retro Arcade' | 'Action Adventure' | 'Puzzle & Strategy' | 'Cloud Gaming' | 'Casual & Viral';
+  category: GameCategory;
   status: 'live' | 'upcoming';
   playUrl: string;
   repoUrl: string;
@@ -68,8 +123,8 @@ export const INITIAL_GAMES: Game[] = [
     title: 'Roblox (Cloud Edition)',
     tagline: 'Instant cloud gaming access to millions of 3D community worlds & obbies',
     description: 'Jump straight into Roblox through high-speed cloud streaming with zero downloads or local installation. Experience community creations, obstacle courses, multiplayer adventures, and creative sandboxes powered by now.gg.',
-    genre: 'Action Adventure',
-    category: 'action',
+    genre: 'Cloud Gaming',
+    category: 'cloud',
     status: 'live',
     playUrl: 'https://now.gg/apps/a/19900/b.html',
     repoUrl: 'https://now.gg/apps/a/19900/b.html',
@@ -124,8 +179,8 @@ export const INITIAL_GAMES: Game[] = [
     title: 'Meme Mania',
     tagline: 'Fast-paced viral internet meme challenges & arcade reflex mini-games',
     description: 'Step into the wild world of web culture with Meme Mania. Test your meme knowledge, reaction speeds, and comedic timing across rapid-fire arcade mini-games and viral challenges.',
-    genre: 'Retro Arcade',
-    category: 'meme',
+    genre: 'Casual & Viral',
+    category: 'casual',
     status: 'live',
     playUrl: 'https://harisxcode.github.io/meme-mania/',
     repoUrl: 'https://github.com/harisxcode/meme-mania',

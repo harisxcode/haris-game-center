@@ -165,7 +165,7 @@ export function IntroScreen({ onComplete }: IntroScreenProps) {
               transition={{ delay: 0.5, duration: 0.7 }}
               className="mt-4 text-sm sm:text-base text-slate-300 max-w-lg leading-relaxed font-normal"
             >
-              Nitro League &amp; Flappy Bird Arcade · High-speed physics, neon midnight tracks, and open-source game repositories.
+              Universal Browser Gaming Hub · Fast, Zero-Install Arcade &amp; Cloud Experiences.
             </motion.p>
 
             {/* Progress / Loading Bar */}

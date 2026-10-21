@@ -14,8 +14,22 @@ import { AddGameModal } from './components/AddGameModal';
 import { DeveloperHub } from './components/DeveloperHub';
 import { Footer } from './components/Footer';
 import { IntroScreen } from './components/IntroScreen';
-import { INITIAL_GAMES, Game } from './data/games';
-import { Gamepad2, Plus, Sparkles, SlidersHorizontal, Car, Laugh, Heart, Clock, Flame } from 'lucide-react';
+import { INITIAL_GAMES, Game, UNIVERSAL_CATEGORIES } from './data/games';
+import { 
+  Gamepad2, 
+  Plus, 
+  Sparkles, 
+  SlidersHorizontal, 
+  Car, 
+  Laugh, 
+  Heart, 
+  Clock, 
+  Flame, 
+  Cloud, 
+  BrainCircuit, 
+  Layers,
+  ArrowRight
+} from 'lucide-react';
 
 export default function App() {
   const [showIntro, setShowIntro] = useState(true);
@@ -39,7 +53,7 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('featured');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [viewMode, setViewMode] = useState<ViewMode>('shelves');
 
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
@@ -80,12 +94,17 @@ export default function App() {
   const filteredAndSortedGames = useMemo(() => {
     const result = games.filter(game => {
       // Category filter
-      if (activeCategory === 'action' && game.category !== 'action') return false;
-      if (activeCategory === 'racing' && game.category !== 'racing') return false;
-      if (activeCategory === 'arcade' && game.category !== 'arcade') return false;
-      if (activeCategory === 'meme' && game.category !== 'meme') return false;
-      if (activeCategory === 'favorites' && !favorites.includes(game.id)) return false;
-      if (activeCategory === 'upcoming' && game.status !== 'upcoming') return false;
+      if (activeCategory !== 'all') {
+        if (activeCategory === 'favorites') {
+          if (!favorites.includes(game.id)) return false;
+        } else if (activeCategory === 'upcoming') {
+          if (game.status !== 'upcoming') return false;
+        } else if (activeCategory === 'casual') {
+          if (game.category !== 'casual' && (game.category as string) !== 'meme') return false;
+        } else {
+          if (game.category !== activeCategory) return false;
+        }
+      }
 
       // Search query filter
       if (searchQuery.trim()) {
@@ -123,20 +142,35 @@ export default function App() {
     }
   };
 
+  const getCategoryIcon = (id: CategoryFilter) => {
+    switch (id) {
+      case 'racing': return Car;
+      case 'cloud': return Cloud;
+      case 'arcade': return Gamepad2;
+      case 'action': return Flame;
+      case 'casual': return Laugh;
+      case 'puzzle': return BrainCircuit;
+      case 'favorites': return Heart;
+      case 'upcoming': return Clock;
+      default: return SlidersHorizontal;
+    }
+  };
+
   const quickFilterPills: { id: CategoryFilter; label: string; icon: typeof Gamepad2 }[] = [
-    { id: 'all', label: 'All Games', icon: SlidersHorizontal },
-    { id: 'action', label: 'Action & Cloud', icon: Flame },
-    { id: 'racing', label: 'Racing', icon: Car },
-    { id: 'arcade', label: 'Arcade', icon: Gamepad2 },
-    { id: 'meme', label: 'Meme & Viral', icon: Laugh },
-    { id: 'favorites', label: 'Favorites', icon: Heart },
-    { id: 'upcoming', label: 'Coming Soon', icon: Clock }
+    { id: 'all', label: 'All Categories', icon: SlidersHorizontal },
+    { id: 'racing', label: 'Racing & Driving', icon: Car },
+    { id: 'cloud', label: 'Cloud Streaming', icon: Cloud },
+    { id: 'arcade', label: 'Arcade & Retro', icon: Gamepad2 },
+    { id: 'action', label: 'Action & Platformer', icon: Flame },
+    { id: 'casual', label: 'Casual & Viral', icon: Laugh },
+    { id: 'puzzle', label: 'Puzzle & Strategy', icon: BrainCircuit },
+    { id: 'favorites', label: 'Favorites', icon: Heart }
   ];
 
   return (
     <div className="min-h-screen bg-[#040814] text-slate-100 font-sans selection:bg-cyan-500 selection:text-white flex flex-col relative cyber-grid">
       
-      {/* Initial Opening Transition Effect */}
+      {/* Initial Opening Transition Effect (Minimal & Universal, No Game Mentions) */}
       {showIntro && (
         <IntroScreen onComplete={() => setShowIntro(false)} />
       )}
@@ -148,27 +182,27 @@ export default function App() {
       />
 
       <main className="flex-1">
-        {/* Hero Section */}
+        {/* Universal Hero Section */}
         <HeroSection
           games={games}
           onPlayGame={handlePlayGame}
         />
 
         {/* Clean & Organized Game Catalog Section */}
-        <section id="games" className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="games" className="py-10 sm:py-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Section Kicker and Title */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
             <div>
               <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-cyan-400 mb-1.5">
-                <Gamepad2 className="w-4 h-4" />
-                <span>Organized Game Catalog</span>
+                <Layers className="w-4 h-4" />
+                <span>Universal Game Categories</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-display">
-                Browse Games &amp; Experiences
+                Browse by Category
               </h2>
               <p className="mt-1 text-xs sm:text-sm text-slate-300 max-w-xl">
-                Filter by genre, search instantly, or switch between visual cards and directory list mode.
+                Organized library for rapid navigation. Select a category below or search across all titles.
               </p>
             </div>
 
@@ -210,43 +244,90 @@ export default function App() {
             totalFilteredCount={filteredAndSortedGames.length}
           />
 
-          {/* Catalog Render: Grid Mode vs Compact Directory Mode */}
+          {/* Catalog Render Logic */}
           {filteredAndSortedGames.length > 0 ? (
-            viewMode === 'grid' ? (
-              /* Visual Grid View */
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
-                {filteredAndSortedGames.map((game) => (
-                  <GameCard
-                    key={game.id}
-                    game={game}
-                    onPlayModal={handlePlayGame}
-                    isFavorite={favorites.includes(game.id)}
-                    onToggleFavorite={toggleFavorite}
-                  />
-                ))}
+            /* Mode 1: Category Shelves (Organized by Category) */
+            viewMode === 'shelves' && activeCategory === 'all' && !searchQuery.trim() ? (
+              <div className="space-y-12">
+                {UNIVERSAL_CATEGORIES.map((catMeta) => {
+                  const categoryGames = games.filter(g => 
+                    g.category === catMeta.id || (catMeta.id === 'casual' && (g.category as string) === 'meme')
+                  );
 
-                {/* Scalability Slot: Add Next Game Card */}
+                  if (categoryGames.length === 0) return null;
+
+                  const CatIcon = getCategoryIcon(catMeta.id);
+
+                  return (
+                    <div key={catMeta.id} className="space-y-4">
+                      {/* Category Shelf Header */}
+                      <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan-400">
+                            <CatIcon className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-lg font-bold text-white font-display">
+                                {catMeta.title}
+                              </h3>
+                              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-slate-900 text-cyan-300 border border-slate-800">
+                                {categoryGames.length} {categoryGames.length === 1 ? 'game' : 'games'}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-400">
+                              {catMeta.tagline}
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => setActiveCategory(catMeta.id)}
+                          className="hidden sm:inline-flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300 font-semibold hover:underline cursor-pointer"
+                        >
+                          <span>View Only {catMeta.shortLabel}</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Category Games Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                        {categoryGames.map((game) => (
+                          <GameCard
+                            key={game.id}
+                            game={game}
+                            onPlayModal={handlePlayGame}
+                            isFavorite={favorites.includes(game.id)}
+                            onToggleFavorite={toggleFavorite}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Scalability Slot: Register Game Card */}
                 <div
                   onClick={() => setIsAddModalOpen(true)}
-                  className="group flex flex-col items-center justify-center p-8 rounded-2xl border-2 border-dashed border-slate-800 hover:border-cyan-500/60 bg-slate-950/40 hover:bg-slate-900/40 text-center transition-all duration-300 cursor-pointer min-h-[360px]"
+                  className="flex items-center justify-between p-5 rounded-2xl border border-dashed border-slate-800 hover:border-cyan-500/60 bg-slate-950/40 hover:bg-slate-900/40 transition-colors cursor-pointer"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-cyan-400 group-hover:scale-110 group-hover:border-cyan-400 transition-all mb-3 shadow-lg">
-                    <Plus className="w-5 h-5" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan-400">
+                      <Plus className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white font-display">Register Another Game</h4>
+                      <p className="text-xs text-slate-400">Expand your game center by registering new projects into universal categories.</p>
+                    </div>
                   </div>
-                  <h3 className="text-base font-bold text-white group-hover:text-cyan-400 transition-colors font-display">
-                    Add Another Game
-                  </h3>
-                  <p className="mt-1.5 text-xs text-slate-400 max-w-xs leading-relaxed">
-                    Register a new GitHub Pages game into your portal with instant preview.
-                  </p>
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-400 group-hover:underline">
-                    <span>Register Game</span>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-400">
+                    <span>Add Game</span>
                     <Sparkles className="w-3.5 h-3.5" />
                   </span>
                 </div>
               </div>
-            ) : (
-              /* Compact Directory List View (Clean & Space-Efficient) */
+            ) : viewMode === 'compact' ? (
+              /* Mode 2: Compact Directory List View (Space-Efficient) */
               <div className="space-y-3">
                 {filteredAndSortedGames.map((game) => (
                   <CompactGameRow
@@ -267,10 +348,43 @@ export default function App() {
                   <span>Register a new game into Haris Game Center</span>
                 </button>
               </div>
+            ) : (
+              /* Mode 3: Clean Responsive Grid View */
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                {filteredAndSortedGames.map((game) => (
+                  <GameCard
+                    key={game.id}
+                    game={game}
+                    onPlayModal={handlePlayGame}
+                    isFavorite={favorites.includes(game.id)}
+                    onToggleFavorite={toggleFavorite}
+                  />
+                ))}
+
+                {/* Scalability Slot: Add Next Game Card */}
+                <div
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="group flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed border-slate-800 hover:border-cyan-500/60 bg-slate-950/40 hover:bg-slate-900/40 text-center transition-all duration-300 cursor-pointer min-h-[220px]"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-cyan-400 group-hover:scale-110 group-hover:border-cyan-400 transition-all mb-2.5 shadow-lg">
+                    <Plus className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors font-display">
+                    Add Another Game
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-400 max-w-xs leading-relaxed">
+                    Register a new web or cloud game into your hub.
+                  </p>
+                  <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-cyan-400 group-hover:underline">
+                    <span>Register Game</span>
+                    <Sparkles className="w-3 h-3" />
+                  </span>
+                </div>
+              </div>
             )
           ) : (
             /* Clean Empty State */
-            <div className="py-16 px-6 text-center rounded-2xl border border-slate-800 bg-[#070e22]">
+            <div className="py-14 px-6 text-center rounded-2xl border border-slate-800 bg-[#070e22]">
               <div className="w-12 h-12 mx-auto rounded-xl bg-slate-900 flex items-center justify-center text-slate-400 mb-3 border border-slate-800">
                 <Gamepad2 className="w-6 h-6" />
               </div>
