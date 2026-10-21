@@ -24,6 +24,9 @@ export function Footer() {
             <a href="https://harisxcode.github.io/nitro-league/" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">
               Nitro League
             </a>
+            <a href="https://now.gg/apps/a/19900/b.html" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">
+              Roblox (now.gg)
+            </a>
             <a href="https://harisxcode.github.io/flappy-bird-arcade/" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">
               Flappy Bird Arcade
             </a>

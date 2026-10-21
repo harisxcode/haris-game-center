@@ -15,7 +15,7 @@ import { DeveloperHub } from './components/DeveloperHub';
 import { Footer } from './components/Footer';
 import { IntroScreen } from './components/IntroScreen';
 import { INITIAL_GAMES, Game } from './data/games';
-import { Gamepad2, Plus, Sparkles, SlidersHorizontal, Car, Laugh, Heart, Clock } from 'lucide-react';
+import { Gamepad2, Plus, Sparkles, SlidersHorizontal, Car, Laugh, Heart, Clock, Flame } from 'lucide-react';
 
 export default function App() {
   const [showIntro, setShowIntro] = useState(true);
@@ -80,6 +80,7 @@ export default function App() {
   const filteredAndSortedGames = useMemo(() => {
     const result = games.filter(game => {
       // Category filter
+      if (activeCategory === 'action' && game.category !== 'action') return false;
       if (activeCategory === 'racing' && game.category !== 'racing') return false;
       if (activeCategory === 'arcade' && game.category !== 'arcade') return false;
       if (activeCategory === 'meme' && game.category !== 'meme') return false;
@@ -114,8 +115,17 @@ export default function App() {
     });
   }, [games, activeCategory, searchQuery, favorites, sortOption]);
 
+  const handlePlayGame = (game: Game) => {
+    if (game.directPlayOnly) {
+      window.open(game.playUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      setSelectedGame(game);
+    }
+  };
+
   const quickFilterPills: { id: CategoryFilter; label: string; icon: typeof Gamepad2 }[] = [
     { id: 'all', label: 'All Games', icon: SlidersHorizontal },
+    { id: 'action', label: 'Action & Cloud', icon: Flame },
     { id: 'racing', label: 'Racing', icon: Car },
     { id: 'arcade', label: 'Arcade', icon: Gamepad2 },
     { id: 'meme', label: 'Meme & Viral', icon: Laugh },
@@ -141,7 +151,7 @@ export default function App() {
         {/* Hero Section */}
         <HeroSection
           games={games}
-          onPlayGame={(game) => setSelectedGame(game)}
+          onPlayGame={handlePlayGame}
         />
 
         {/* Clean & Organized Game Catalog Section */}
@@ -209,7 +219,7 @@ export default function App() {
                   <GameCard
                     key={game.id}
                     game={game}
-                    onPlayModal={(g) => setSelectedGame(g)}
+                    onPlayModal={handlePlayGame}
                     isFavorite={favorites.includes(game.id)}
                     onToggleFavorite={toggleFavorite}
                   />
@@ -242,7 +252,7 @@ export default function App() {
                   <CompactGameRow
                     key={game.id}
                     game={game}
-                    onPlayModal={(g) => setSelectedGame(g)}
+                    onPlayModal={handlePlayGame}
                     isFavorite={favorites.includes(game.id)}
                     onToggleFavorite={toggleFavorite}
                   />

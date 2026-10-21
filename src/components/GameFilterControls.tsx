@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { Game } from '../data/games';
 
-export type CategoryFilter = 'all' | 'racing' | 'arcade' | 'meme' | 'favorites' | 'upcoming';
+export type CategoryFilter = 'all' | 'action' | 'racing' | 'arcade' | 'meme' | 'favorites' | 'upcoming';
 export type SortOption = 'featured' | 'az' | 'newest';
 export type ViewMode = 'grid' | 'compact';
 
@@ -82,6 +82,7 @@ export function GameFilterControls({
 
   const categories: { id: CategoryFilter; label: string; icon: typeof Gamepad2; count: number }[] = [
     { id: 'all', label: 'All Categories', icon: SlidersHorizontal, count: games.length },
+    { id: 'action', label: 'Action & Cloud', icon: Flame, count: games.filter(g => g.category === 'action').length },
     { id: 'racing', label: 'Racing & Driving', icon: Car, count: games.filter(g => g.category === 'racing').length },
     { id: 'arcade', label: 'Classic Arcade', icon: Gamepad2, count: games.filter(g => g.category === 'arcade').length },
     { id: 'meme', label: 'Meme & Viral', icon: Laugh, count: games.filter(g => g.category === 'meme').length },

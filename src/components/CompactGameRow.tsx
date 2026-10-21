@@ -37,13 +37,25 @@ export function CompactGameRow({ game, onPlayModal, isFavorite, onToggleFavorite
 
           {/* Quick hover play icon */}
           {game.status === 'live' && (
-            <button
-              onClick={() => onPlayModal(game)}
-              className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
-              title="Quick preview"
-            >
-              <Play className="w-5 h-5 fill-cyan-400 text-cyan-400" />
-            </button>
+            game.directPlayOnly ? (
+              <a
+                href={game.playUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                title="Play directly on now.gg"
+              >
+                <ExternalLink className="w-5 h-5 text-cyan-400" />
+              </a>
+            ) : (
+              <button
+                onClick={() => onPlayModal(game)}
+                className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
+                title="Quick preview"
+              >
+                <Play className="w-5 h-5 fill-cyan-400 text-cyan-400" />
+              </button>
+            )
           )}
         </div>
 
@@ -100,13 +112,13 @@ export function CompactGameRow({ game, onPlayModal, isFavorite, onToggleFavorite
           target="_blank"
           rel="noopener noreferrer"
           className="p-2 rounded-lg text-slate-400 hover:text-white bg-slate-900/60 hover:bg-slate-800 border border-slate-800 transition-colors"
-          title={game.isExternal ? 'Visit host site' : 'View source code on GitHub'}
+          title={game.directPlayOnly ? 'Direct link to now.gg' : (game.isExternal ? 'Visit host site' : 'View source code on GitHub')}
         >
           {game.isExternal ? <Globe className="w-4 h-4 text-cyan-400" /> : <Github className="w-4 h-4" />}
         </a>
 
-        {/* In-App Frame button */}
-        {game.status === 'live' && (
+        {/* In-App Frame button (Hidden for directPlayOnly games) */}
+        {game.status === 'live' && !game.directPlayOnly && (
           <button
             onClick={() => onPlayModal(game)}
             className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-colors cursor-pointer hidden sm:inline-flex items-center gap-1.5"
@@ -125,7 +137,7 @@ export function CompactGameRow({ game, onPlayModal, isFavorite, onToggleFavorite
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm shadow-cyan-500/20"
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            <span>Play</span>
+            <span>{game.directPlayOnly ? 'Play (now.gg)' : 'Play'}</span>
           </a>
         ) : (
           <span className="text-xs text-slate-500 font-mono px-3 py-1 bg-slate-950 rounded border border-slate-800">

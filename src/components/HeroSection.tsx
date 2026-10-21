@@ -8,6 +8,7 @@ interface HeroSectionProps {
 
 export function HeroSection({ games, onPlayGame }: HeroSectionProps) {
   const nitroGame = games.find((g) => g.id === 'nitro-league') || games[0];
+  const robloxGame = games.find((g) => g.id === 'roblox-cloud');
   const flappyGame = games.find((g) => g.id === 'flappy-bird-arcade') || games[1];
   const memeGame = games.find((g) => g.id === 'meme-mania') || games[2];
   const liveCount = games.filter((g) => g.status === 'live').length;
@@ -37,7 +38,7 @@ export function HeroSection({ games, onPlayGame }: HeroSectionProps) {
             </h1>
 
             <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
-              Welcome to Haris Game Center—a unified home for arcade racers, retro tap classics, and viral meme reflex challenges. Play Nitro League, Flappy Bird, and Meme Mania directly in your browser with zero installs, or inspect the open-source code on GitHub.
+              Welcome to Haris Game Center—a unified home for arcade racers, retro tap classics, viral meme challenges, and cloud gaming worlds. Play Nitro League, Roblox (Cloud), Flappy Bird, and Meme Mania directly in your browser with zero installs.
             </p>
 
             {/* Unboxed Metadata Stats Strip */}
@@ -67,6 +68,19 @@ export function HeroSection({ games, onPlayGame }: HeroSectionProps) {
                 <Play className="w-4 h-4 fill-white" />
                 <span>Nitro League</span>
               </button>
+
+              {robloxGame && (
+                <a
+                  href={robloxGame.playUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-100 hover:text-white border border-slate-700 hover:border-slate-600 font-semibold text-xs sm:text-sm transition-colors cursor-pointer"
+                  title="Direct launch on now.gg"
+                >
+                  <Flame className="w-4 h-4 text-cyan-400" />
+                  <span>Roblox (now.gg)</span>
+                </a>
+              )}
 
               <button
                 onClick={() => onPlayGame(flappyGame)}

@@ -3,8 +3,9 @@ import flappyThumb from '../assets/images/thumb_flappy_arcade_1791725038441.jpg'
 import heroBanner from '../assets/images/hero_gaming_center_1791725017457.jpg';
 import mascotLogo from '../assets/images/mascot_game_center_1791725047626.jpg';
 import memeManiaThumb from '../assets/images/thumb_meme_mania_1792447637658.jpg';
+import robloxThumb from '../assets/images/thumb_roblox_cloud_1792545369843.jpg';
 
-export { nitroThumb, flappyThumb, heroBanner, mascotLogo, memeManiaThumb };
+export { nitroThumb, flappyThumb, heroBanner, mascotLogo, memeManiaThumb, robloxThumb };
 
 export interface GameControl {
   key: string;
@@ -29,6 +30,7 @@ export interface Game {
   techStack: string[];
   isFeatured?: boolean;
   isExternal?: boolean;
+  directPlayOnly?: boolean;
   iframeUrl?: string;
 }
 
@@ -60,6 +62,35 @@ export const INITIAL_GAMES: Game[] = [
     releaseYear: '2025',
     techStack: ['HTML5 Canvas', 'JavaScript / TypeScript', 'Web Audio API', 'GitHub Pages'],
     isFeatured: true
+  },
+  {
+    id: 'roblox-cloud',
+    title: 'Roblox (Cloud Edition)',
+    tagline: 'Instant cloud gaming access to millions of 3D community worlds & obbies',
+    description: 'Jump straight into Roblox through high-speed cloud streaming with zero downloads or local installation. Experience community creations, obstacle courses, multiplayer adventures, and creative sandboxes powered by now.gg.',
+    genre: 'Action Adventure',
+    category: 'action',
+    status: 'live',
+    playUrl: 'https://now.gg/apps/a/19900/b.html',
+    repoUrl: 'https://now.gg/apps/a/19900/b.html',
+    thumbnailUrl: robloxThumb,
+    features: [
+      'Direct cloud stream execution via now.gg with no installation',
+      'Access to millions of player-created worlds, tycoons, and obbies',
+      'Full keyboard, mouse camera control, and touchscreen support',
+      'Instant launch in dedicated browser window'
+    ],
+    controls: [
+      { key: 'W A S D', action: 'Move Avatar' },
+      { key: 'Space', action: 'Jump' },
+      { key: 'Right Click + Drag', action: 'Rotate Camera' },
+      { key: 'E / Click', action: 'Interact / Action' }
+    ],
+    releaseYear: '2025',
+    techStack: ['now.gg Cloud Engine', 'WebGL Stream', 'Direct Launch'],
+    isFeatured: true,
+    isExternal: true,
+    directPlayOnly: true
   },
   {
     id: 'flappy-bird-arcade',

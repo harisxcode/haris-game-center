@@ -60,13 +60,25 @@ export function GameCard({ game, onPlayModal, isFavorite, onToggleFavorite }: Ga
         {/* Play Overlay Button on hover */}
         {game.status === 'live' && (
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/40 backdrop-blur-[2px]">
-            <button
-              onClick={() => onPlayModal(game)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:bg-cyan-400 transition-transform transform active:scale-95 shadow-xl shadow-cyan-500/30 cursor-pointer"
-            >
-              <Play className="w-4 h-4 fill-slate-950" />
-              <span>Quick Play</span>
-            </button>
+            {game.directPlayOnly ? (
+              <a
+                href={game.playUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:bg-cyan-400 transition-transform transform active:scale-95 shadow-xl shadow-cyan-500/30"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>Play Direct</span>
+              </a>
+            ) : (
+              <button
+                onClick={() => onPlayModal(game)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:bg-cyan-400 transition-transform transform active:scale-95 shadow-xl shadow-cyan-500/30 cursor-pointer"
+              >
+                <Play className="w-4 h-4 fill-slate-950" />
+                <span>Quick Play</span>
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -78,9 +90,9 @@ export function GameCard({ game, onPlayModal, isFavorite, onToggleFavorite }: Ga
         <div className="flex items-center gap-2 text-xs text-slate-400">
           <span>{game.releaseYear}</span>
           <span aria-hidden="true" className="text-slate-700">·</span>
-          <span>{game.status === 'live' ? (game.isExternal ? 'External Iframe Game' : 'Live on GitHub Pages') : 'Under Development'}</span>
+          <span>{game.status === 'live' ? (game.directPlayOnly ? 'now.gg Cloud · Direct Play' : (game.isExternal ? 'External Web Game' : 'Live on GitHub Pages')) : 'Under Development'}</span>
           <span aria-hidden="true" className="text-slate-700">·</span>
-          <span>{game.isExternal ? 'Web Arcade' : 'Harisxcode'}</span>
+          <span>{game.isExternal ? (game.directPlayOnly ? 'Cloud Stream' : 'Web Arcade') : 'Harisxcode'}</span>
         </div>
 
         {/* Title and Tagline */}
@@ -140,20 +152,22 @@ export function GameCard({ game, onPlayModal, isFavorite, onToggleFavorite }: Ga
                 href={game.playUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm shadow-cyan-500/20"
+                className={`w-full ${game.directPlayOnly ? 'sm:flex-1' : 'sm:flex-1'} inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm shadow-cyan-500/20`}
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                <span>Launch Game</span>
+                <span>{game.directPlayOnly ? 'Play Direct (now.gg)' : 'Launch Game'}</span>
               </a>
 
-              <button
-                onClick={() => onPlayModal(game)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold transition-colors cursor-pointer"
-                title="Play inside embedded frame"
-              >
-                <Play className="w-3.5 h-3.5 text-cyan-400" />
-                <span>In-App</span>
-              </button>
+              {!game.directPlayOnly && (
+                <button
+                  onClick={() => onPlayModal(game)}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold transition-colors cursor-pointer"
+                  title="Play inside embedded frame"
+                >
+                  <Play className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>In-App</span>
+                </button>
+              )}
             </>
           ) : (
             <div className="w-full py-2.5 px-4 text-center text-xs font-medium text-slate-400 bg-slate-950/60 rounded-xl border border-slate-800">
@@ -170,7 +184,7 @@ export function GameCard({ game, onPlayModal, isFavorite, onToggleFavorite }: Ga
             title={game.isExternal ? 'Visit external host site' : 'Inspect project repository on GitHub'}
           >
             {game.isExternal ? <Globe className="w-3.5 h-3.5 text-cyan-400" /> : <Github className="w-3.5 h-3.5" />}
-            <span>{game.isExternal ? 'Host Site' : 'Repository'}</span>
+            <span>{game.directPlayOnly ? 'now.gg' : (game.isExternal ? 'Host Site' : 'Repository')}</span>
           </a>
         </div>
 
