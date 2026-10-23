@@ -4,8 +4,10 @@ import heroBanner from '../assets/images/hero_gaming_center_1791725017457.jpg';
 import mascotLogo from '../assets/images/mascot_game_center_1791725047626.jpg';
 import memeManiaThumb from '../assets/images/thumb_meme_mania_1792447637658.jpg';
 import robloxThumb from '../assets/images/thumb_roblox_cloud_1792545369843.jpg';
+import harisArcadeThumb from '../assets/images/thumb_haris_arcade_1792546847417.jpg';
+import escapeRoadThumb from '../assets/images/thumb_escape_road_1792766021496.jpg';
 
-export { nitroThumb, flappyThumb, heroBanner, mascotLogo, memeManiaThumb, robloxThumb };
+export { nitroThumb, flappyThumb, heroBanner, mascotLogo, memeManiaThumb, robloxThumb, harisArcadeThumb, escapeRoadThumb };
 
 export interface GameControl {
   key: string;
@@ -20,6 +22,17 @@ export interface CategoryMeta {
   shortLabel: string;
   tagline: string;
   iconName: string;
+}
+
+export interface GameHypeAd {
+  headline: string;
+  badge: string;
+  funPitch: string;
+  hypeQuote: string;
+  reviewer: string;
+  ratingScore: string;
+  gameplayTips: string[];
+  excitementLevel: string;
 }
 
 export const UNIVERSAL_CATEGORIES: CategoryMeta[] = [
@@ -87,6 +100,7 @@ export interface Game {
   isExternal?: boolean;
   directPlayOnly?: boolean;
   iframeUrl?: string;
+  hypeAd?: GameHypeAd;
 }
 
 export const INITIAL_GAMES: Game[] = [
@@ -116,7 +130,105 @@ export const INITIAL_GAMES: Game[] = [
     ],
     releaseYear: '2025',
     techStack: ['HTML5 Canvas', 'JavaScript / TypeScript', 'Web Audio API', 'GitHub Pages'],
-    isFeatured: true
+    isFeatured: true,
+    hypeAd: {
+      headline: 'BLISTERING SPEED & PRECISION DRIFTS!',
+      badge: '🔥 100% ADRENALINE RUSH',
+      funPitch: 'Rev up your engine and burn rubber through neon-drenched cyberpunk tracks! Slide through hairpin turns, ignite your nitrous tank, and leave rivals in your dust with ultra-responsive 60fps drift physics.',
+      hypeQuote: 'The most electrifying browser racing game out there—the nitro boost sensation is unmatched!',
+      reviewer: 'Pixel Turbo Magazine',
+      ratingScore: '9.9 / 10',
+      gameplayTips: [
+        'Counter-steer into sharp curves to build maximum drift multipliers',
+        'Save your Nitro bottle for straightaways to blast past speed limits',
+        'Avoid track edge scraping to maintain top momentum'
+      ],
+      excitementLevel: 'MAXIMUM ADRENALINE'
+    }
+  },
+  {
+    id: 'escape-road',
+    title: 'Escape Road',
+    tagline: 'High-speed police getaway chase through an obstacle-filled 3D city',
+    description: 'Slam the accelerator and evade relentless police cruisers, roadblocks, and tactical SWAT interceptors. Drift through tight urban intersections, dodge oncoming traffic, and survive the ultimate high-octane pursuit.',
+    genre: 'Arcade Racing',
+    category: 'racing',
+    status: 'live',
+    playUrl: 'https://unblockedescaperoads.com/',
+    repoUrl: 'https://unblockedescaperoads.com/',
+    thumbnailUrl: escapeRoadThumb,
+    features: [
+      'High-speed urban getaway pursuit physics with reactive AI police',
+      'Dynamic destructive obstacles, barricades, and city traffic',
+      'Responsive keyboard steering and emergency handbrake drifting',
+      'Direct browser execution with zero iframes or lag'
+    ],
+    controls: [
+      { key: 'A / D or ← / →', action: 'Steer Vehicle' },
+      { key: 'W / ↑', action: 'Accelerate' },
+      { key: 'S / ↓', action: 'Brake / Reverse' },
+      { key: 'Spacebar', action: 'Handbrake Drift' }
+    ],
+    releaseYear: '2025',
+    techStack: ['WebGL 3D Engine', 'Physics Simulation', 'Direct Launch'],
+    isFeatured: true,
+    isExternal: true,
+    directPlayOnly: true,
+    hypeAd: {
+      headline: 'HIGH-SPEED POLICE CHASE ESCAPE MADNESS!',
+      badge: '🚨 100% INTENSE PURSUIT',
+      funPitch: 'Can you outsmart an entire metropolitan police force? Slam the pedal, drift around city skyscrapers, dodge spike strips, and weave through oncoming traffic in the most thrilling getaway escape racer on the web!',
+      hypeQuote: 'White-knuckle police evasion action—pure adrenaline from the very first second you hit the gas!',
+      reviewer: 'Getaway Gaming Reviews',
+      ratingScore: '9.9 / 10',
+      gameplayTips: [
+        'Bait chasing police cruisers into ramming barricades and buildings',
+        'Use quick handbrake taps to execute sharp 90-degree alleyway drifts',
+        'Keep your momentum high—getting boxed in means instant bust!'
+      ],
+      excitementLevel: 'MAXIMUM CHASE THRILL'
+    }
+  },
+  {
+    id: 'haris-game-center-hub',
+    title: 'Haris Game Center (Arcade Portal)',
+    tagline: 'Direct arcade gateway to classic web games & community challenges',
+    description: 'Jump straight into the Haris Game Center arcade library for fast-paced web action. Launch directly into retro obstacle games, drift circuits, and mini-game reflex trials with zero installation.',
+    genre: 'Retro Arcade',
+    category: 'arcade',
+    status: 'live',
+    playUrl: 'https://harisxcode.github.io/haris-game-center/#games',
+    repoUrl: 'https://github.com/harisxcode/haris-game-center',
+    thumbnailUrl: harisArcadeThumb,
+    features: [
+      'Direct launch with zero iframe encapsulation',
+      'Instant access to retro mini-games and reflex challenges',
+      'Optimized for desktop spacebar and mobile touchscreen controls'
+    ],
+    controls: [
+      { key: 'W A S D / Arrows', action: 'Move / Steer' },
+      { key: 'Spacebar', action: 'Action / Flap / Nitro' },
+      { key: 'Click / Tap', action: 'Touch Controls' }
+    ],
+    releaseYear: '2025',
+    techStack: ['HTML5 Canvas', 'TypeScript', 'GitHub Pages', 'Direct Launch'],
+    isFeatured: true,
+    isExternal: true,
+    directPlayOnly: true,
+    hypeAd: {
+      headline: 'THE ULTIMATE ALL-IN-ONE RETRO ARCADE!',
+      badge: '🕹️ NON-STOP GAMING FEVER',
+      funPitch: 'Step into an authentic virtual arcade cabinet floor! Experience handcrafted browser classics, fast-paced reflex mini-games, and competitive challenges all in one place—no downloads, no friction, pure fun.',
+      hypeQuote: 'Non-stop gaming variety right in your browser tab—pure retro vibes from start to finish!',
+      reviewer: 'Web Arcade Chronicle',
+      ratingScore: '9.8 / 10',
+      gameplayTips: [
+        'Explore all universal categories to discover new hidden gems',
+        'Use keyboard hotkeys or touchscreen taps for lightning reactions',
+        'Bookmark your top favorites with the heart button'
+      ],
+      excitementLevel: '100% RETRO THRILLS'
+    }
   },
   {
     id: 'roblox-cloud',
@@ -145,7 +257,21 @@ export const INITIAL_GAMES: Game[] = [
     techStack: ['now.gg Cloud Engine', 'WebGL Stream', 'Direct Launch'],
     isFeatured: true,
     isExternal: true,
-    directPlayOnly: true
+    directPlayOnly: true,
+    hypeAd: {
+      headline: 'MILLIONS OF 3D COMMUNITY WORLDS IN YOUR BROWSER!',
+      badge: '☁️ NEXT-GEN CLOUD STREAMING',
+      funPitch: 'Skip gigabyte downloads and hop straight into endless 3D adventures! Race through crazy obstacle courses (obbies), build tycoon empires, roleplay with friends, and explore community worlds powered by now.gg high-speed cloud streaming.',
+      hypeQuote: 'Instant access to all the craziest community creations without eating your computer storage!',
+      reviewer: 'Cloud Gamer Weekly',
+      ratingScore: '9.9 / 10',
+      gameplayTips: [
+        'Right-click and drag for smooth 360-degree camera awareness',
+        'Time your jump spacing in obbies to conquer difficult parkour',
+        'Team up with friends online for multiplier bonuses in tycoons'
+      ],
+      excitementLevel: 'INFINITE 3D WORLDS'
+    }
   },
   {
     id: 'flappy-bird-arcade',
@@ -172,7 +298,21 @@ export const INITIAL_GAMES: Game[] = [
     ],
     releaseYear: '2025',
     techStack: ['HTML5 Canvas', 'Vanilla JS / TS', 'Local Storage Highscores', 'GitHub Pages'],
-    isFeatured: true
+    isFeatured: true,
+    hypeAd: {
+      headline: 'ONE TAP TO GLORY! CAN YOU BEAT THE RECORD?',
+      badge: '🕊️ CRAZY ADDICTIVE CLASSIC',
+      funPitch: 'Test your nerve, reflexes, and concentration! Guide your neon wings through tight pipe labyrinths where one tiny flap makes all the difference between a high-score legend and a glorious faceplant. Re-tuned with smooth 60fps physics!',
+      hypeQuote: 'Deceptively simple, wildly hilarious, and impossibly addictive! You will keep hitting restart!',
+      reviewer: 'Retro Tap Daily',
+      ratingScore: '9.7 / 10',
+      gameplayTips: [
+        'Tap with a steady metronome rhythm rather than frantic tapping',
+        'Aim for the lower third of each pipe gap for maximum recovery room',
+        'Hit R for instant zero-lag restart when chasing records'
+      ],
+      excitementLevel: 'HIGH-STAKES REFLEX'
+    }
   },
   {
     id: 'meme-mania',
@@ -199,32 +339,21 @@ export const INITIAL_GAMES: Game[] = [
     ],
     releaseYear: '2025',
     techStack: ['HTML5 Canvas', 'TypeScript / JavaScript', 'Web Audio API', 'GitHub Pages'],
-    isFeatured: true
-  },
-  {
-    id: 'cyber-runner-dx',
-    title: 'Cyber Runner DX',
-    tagline: 'Infinite procedurally generated vertical synthwave platformer',
-    description: 'Currently in active development. Leap across shifting neon ledges, wall-jump past energy lasers, and harness gravitational momentum in an ever-ascending cyberpunk skyline.',
-    genre: 'Action Adventure',
-    category: 'action',
-    status: 'upcoming',
-    playUrl: '',
-    repoUrl: 'https://github.com/harisxcode/game-center',
-    thumbnailUrl: heroBanner,
-    features: [
-      'Procedural level generation with escalating velocity curves',
-      'Wall-running and dash combo mechanics',
-      'Synthwave adaptive audio soundscape'
-    ],
-    controls: [
-      { key: 'A / D', action: 'Move Horizontal' },
-      { key: 'Space', action: 'Jump / Double Jump' },
-      { key: 'Shift', action: 'Air Dash' }
-    ],
-    releaseYear: 'Coming Soon',
-    techStack: ['TypeScript', 'Vite', 'WebGL'],
-    isFeatured: false
+    isFeatured: true,
+    hypeAd: {
+      headline: 'HILARIOUS VIRAL CHALLENGES & MEME MAYHEM!',
+      badge: '🎭 MAXIMUM LAUGHS GUARANTEED',
+      funPitch: 'Get ready to laugh uncontrollably while testing your reaction speeds! Packed with web culture’s most iconic memes, chaotic soundboards, escalating reflex puzzles, and comedic surprises at every turn.',
+      hypeQuote: 'You will laugh out loud from start to finish. Comedy meets rapid-fire arcade frenzy!',
+      reviewer: 'Viral Culture Weekly',
+      ratingScore: '9.8 / 10',
+      gameplayTips: [
+        'Keep sound ON to hear the hilarious voice clips and meme sound cues',
+        'Watch out for comedic trick questions that test quick intuition',
+        'Chain consecutive fast reactions for huge combo bonus scores'
+      ],
+      excitementLevel: '100% VIRAL CHAOS'
+    }
   }
 ];
 

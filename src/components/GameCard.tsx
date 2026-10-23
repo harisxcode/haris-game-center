@@ -1,15 +1,35 @@
 import { useState } from 'react';
-import { Play, Github, ExternalLink, Heart, ChevronDown, ChevronUp, Terminal, Layers, Globe } from 'lucide-react';
+import { 
+  Play, 
+  Github, 
+  ExternalLink, 
+  Heart, 
+  ChevronDown, 
+  ChevronUp, 
+  Terminal, 
+  Layers, 
+  Globe, 
+  Tv, 
+  Sparkles,
+  Flame
+} from 'lucide-react';
 import { Game } from '../data/games';
 
 interface GameCardProps {
   game: Game;
   onPlayModal: (game: Game) => void;
+  onPreviewAd: (game: Game) => void;
   isFavorite: boolean;
   onToggleFavorite: (gameId: string) => void;
 }
 
-export function GameCard({ game, onPlayModal, isFavorite, onToggleFavorite }: GameCardProps) {
+export function GameCard({ 
+  game, 
+  onPlayModal, 
+  onPreviewAd, 
+  isFavorite, 
+  onToggleFavorite 
+}: GameCardProps) {
   const [imgError, setImgError] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
@@ -44,29 +64,50 @@ export function GameCard({ game, onPlayModal, isFavorite, onToggleFavorite }: Ga
             <span>{game.genre}</span>
           </div>
 
-          <button
-            onClick={() => onToggleFavorite(game.id)}
-            className={`p-1.5 rounded-lg backdrop-blur-md transition-colors ${
-              isFavorite
-                ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
-                : 'bg-slate-950/60 text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700'
-            }`}
-            title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-            aria-label="Toggle favorite"
-          >
-            <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-rose-400' : ''}`} />
-          </button>
+          <div className="flex items-center gap-1.5">
+            {/* Quick Preview Ad Button */}
+            <button
+              onClick={() => onPreviewAd(game)}
+              className="p-1.5 rounded-lg backdrop-blur-md bg-slate-950/70 border border-amber-500/30 text-amber-300 hover:text-amber-200 hover:bg-amber-500/20 transition-colors"
+              title="Watch fun preview ad"
+              aria-label="Watch game preview ad"
+            >
+              <Tv className="w-3.5 h-3.5" />
+            </button>
+
+            <button
+              onClick={() => onToggleFavorite(game.id)}
+              className={`p-1.5 rounded-lg backdrop-blur-md transition-colors ${
+                isFavorite
+                  ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
+                  : 'bg-slate-950/60 text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700'
+              }`}
+              title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+              aria-label="Toggle favorite"
+            >
+              <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-rose-400' : ''}`} />
+            </button>
+          </div>
         </div>
 
         {/* Play Overlay Button on hover */}
         {game.status === 'live' && (
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/45 backdrop-blur-[2px]">
+          <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/55 backdrop-blur-[2px]">
+            <button
+              onClick={() => onPreviewAd(game)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:brightness-110 transition-transform transform active:scale-95 shadow-lg shadow-amber-500/30 cursor-pointer"
+              title="Watch hype ad and play"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Preview Ad</span>
+            </button>
+
             {game.directPlayOnly ? (
               <a
                 href={game.playUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:bg-cyan-400 transition-transform transform active:scale-95 shadow-xl shadow-cyan-500/30"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:bg-cyan-400 transition-transform transform active:scale-95 shadow-xl shadow-cyan-500/30"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span>Play Direct</span>
@@ -74,7 +115,7 @@ export function GameCard({ game, onPlayModal, isFavorite, onToggleFavorite }: Ga
             ) : (
               <button
                 onClick={() => onPlayModal(game)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:bg-cyan-400 transition-transform transform active:scale-95 shadow-xl shadow-cyan-500/30 cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:bg-cyan-400 transition-transform transform active:scale-95 shadow-xl shadow-cyan-500/30 cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5 fill-slate-950" />
                 <span>Quick Play</span>
@@ -107,6 +148,19 @@ export function GameCard({ game, onPlayModal, isFavorite, onToggleFavorite }: Ga
             <p className="text-slate-400 text-xs leading-relaxed">
               {game.description}
             </p>
+
+            {/* Quick ad quote highlight */}
+            {game.hypeAd && (
+              <div className="p-2 rounded bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] flex items-center justify-between">
+                <span className="truncate italic">“{game.hypeAd.hypeQuote}”</span>
+                <button
+                  onClick={() => onPreviewAd(game)}
+                  className="ml-2 text-cyan-300 hover:underline font-bold shrink-0 cursor-pointer"
+                >
+                  Watch Ad
+                </button>
+              </div>
+            )}
 
             {game.controls.length > 0 && (
               <div className="space-y-1">
@@ -152,8 +206,18 @@ export function GameCard({ game, onPlayModal, isFavorite, onToggleFavorite }: Ga
                 className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm shadow-cyan-500/20"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                <span>{game.directPlayOnly ? 'Play (now.gg)' : 'Play'}</span>
+                <span>{game.id === 'roblox-cloud' ? 'Play (now.gg)' : (game.directPlayOnly ? 'Play Direct' : 'Play')}</span>
               </a>
+
+              {/* Preview Ad Button in Footer */}
+              <button
+                onClick={() => onPreviewAd(game)}
+                className="inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 hover:text-amber-200 border border-amber-500/30 text-xs font-semibold transition-colors cursor-pointer"
+                title="Watch preview ad about this game"
+              >
+                <Tv className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Ad</span>
+              </button>
 
               {!game.directPlayOnly && (
                 <button
@@ -188,7 +252,7 @@ export function GameCard({ game, onPlayModal, isFavorite, onToggleFavorite }: Ga
             target="_blank"
             rel="noopener noreferrer"
             className="p-2 rounded-xl bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition-colors"
-            title={game.directPlayOnly ? 'Direct link to now.gg' : (game.isExternal ? 'Visit host site' : 'View repository on GitHub')}
+            title={game.directPlayOnly ? 'Direct link to host' : (game.isExternal ? 'Visit host site' : 'View repository on GitHub')}
           >
             {game.isExternal ? <Globe className="w-3.5 h-3.5 text-cyan-400" /> : <Github className="w-3.5 h-3.5" />}
           </a>

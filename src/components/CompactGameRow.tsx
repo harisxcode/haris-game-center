@@ -1,15 +1,16 @@
 import { useState } from 'react';
-import { Play, Github, ExternalLink, Heart, Terminal, Sparkles, Globe } from 'lucide-react';
+import { Play, Github, ExternalLink, Heart, Terminal, Sparkles, Globe, Tv } from 'lucide-react';
 import { Game } from '../data/games';
 
 interface CompactGameRowProps {
   game: Game;
   onPlayModal: (game: Game) => void;
+  onPreviewAd?: (game: Game) => void;
   isFavorite: boolean;
   onToggleFavorite: (gameId: string) => void;
 }
 
-export function CompactGameRow({ game, onPlayModal, isFavorite, onToggleFavorite }: CompactGameRowProps) {
+export function CompactGameRow({ game, onPlayModal, onPreviewAd, isFavorite, onToggleFavorite }: CompactGameRowProps) {
   const [imgError, setImgError] = useState(false);
 
   return (
@@ -128,6 +129,17 @@ export function CompactGameRow({ game, onPlayModal, isFavorite, onToggleFavorite
           </button>
         )}
 
+        {/* Ad preview button */}
+        {onPreviewAd && (
+          <button
+            onClick={() => onPreviewAd(game)}
+            className="p-2 rounded-lg text-amber-300 hover:text-amber-200 bg-slate-900/80 hover:bg-slate-800 border border-amber-500/30 transition-colors cursor-pointer"
+            title="Watch game hype preview ad"
+          >
+            <Tv className="w-4 h-4" />
+          </button>
+        )}
+
         {/* Launch / Play in new tab */}
         {game.status === 'live' ? (
           <a
@@ -137,7 +149,7 @@ export function CompactGameRow({ game, onPlayModal, isFavorite, onToggleFavorite
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm shadow-cyan-500/20"
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            <span>{game.directPlayOnly ? 'Play (now.gg)' : 'Play'}</span>
+            <span>{game.id === 'roblox-cloud' ? 'Play (now.gg)' : (game.directPlayOnly ? 'Play Direct' : 'Play')}</span>
           </a>
         ) : (
           <span className="text-xs text-slate-500 font-mono px-3 py-1 bg-slate-950 rounded border border-slate-800">

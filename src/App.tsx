@@ -11,6 +11,9 @@ import { CompactGameRow } from './components/CompactGameRow';
 import { GameFilterControls, CategoryFilter, SortOption, ViewMode } from './components/GameFilterControls';
 import { GameModal } from './components/GameModal';
 import { AddGameModal } from './components/AddGameModal';
+import { GameHypeAdModal } from './components/GameHypeAdModal';
+import { RatingModal } from './components/RatingModal';
+import { RecommendGameModal } from './components/RecommendGameModal';
 import { DeveloperHub } from './components/DeveloperHub';
 import { Footer } from './components/Footer';
 import { IntroScreen } from './components/IntroScreen';
@@ -28,7 +31,10 @@ import {
   Cloud, 
   BrainCircuit, 
   Layers,
-  ArrowRight
+  ArrowRight,
+  Star,
+  Lightbulb,
+  Tv
 } from 'lucide-react';
 
 export default function App() {
@@ -38,9 +44,11 @@ export default function App() {
       const saved = localStorage.getItem('haris_games');
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Ensure initial games are always merged and up to date
+        // Ensure initial games are always merged and up to date, and removed unwanted games
         const initialIds = new Set(INITIAL_GAMES.map(g => g.id));
-        const customGames = parsed.filter((g: Game) => !initialIds.has(g.id) && g.id !== 'drive-u');
+        const customGames = parsed.filter(
+          (g: Game) => !initialIds.has(g.id) && g.id !== 'drive-u' && g.id !== 'cyber-runner-dx'
+        );
         return [...INITIAL_GAMES, ...customGames];
       }
     } catch {
@@ -50,10 +58,24 @@ export default function App() {
   });
 
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [adGame, setAdGame] = useState<Game | null>(null);
+  const [isAdModalOpen, setIsAdModalOpen] = useState(false);
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [isRecommendModalOpen, setIsRecommendModalOpen] = useState(false);
+
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('featured');
   const [viewMode, setViewMode] = useState<ViewMode>('shelves');
+
+  const [userRating, setUserRating] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('haris_user_rating');
+      return saved ? parseInt(saved, 10) : 5;
+    } catch {
+      return 5;
+    }
+  });
 
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
@@ -88,6 +110,11 @@ export default function App() {
 
   const handleAddGame = (newGame: Game) => {
     setGames(prev => [newGame, ...prev]);
+  };
+
+  const handleOpenAd = (game: Game) => {
+    setAdGame(game);
+    setIsAdModalOpen(true);
   };
 
   // Filter and sort games
@@ -179,6 +206,8 @@ export default function App() {
       <Navbar
         onReplayIntro={() => setShowIntro(true)}
         onOpenAddModal={() => setIsAddModalOpen(true)}
+        onOpenRatingModal={() => setIsRatingModalOpen(true)}
+        onOpenRecommendModal={() => setIsRecommendModalOpen(true)}
       />
 
       <main className="flex-1">
@@ -187,6 +216,37 @@ export default function App() {
           games={games}
           onPlayGame={handlePlayGame}
         />
+
+        {/* Featured Game Hype Ads Spotlight Strip */}
+        <section className="border-b border-slate-800/80 bg-[#060c1d]/60 py-3 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2 text-slate-300">
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+              </span>
+              <span className="font-mono uppercase tracking-wider text-amber-300 font-bold">
+                Featured Game Hype Previews:
+              </span>
+              <span className="hidden md:inline text-slate-400">
+                Watch short preview ads highlighting how fun each game is before playing!
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1 sm:pb-0 scrollbar-none">
+              {games.slice(0, 4).map((g) => (
+                <button
+                  key={g.id}
+                  onClick={() => handleOpenAd(g)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/40 text-[11px] text-slate-300 hover:text-amber-300 transition-colors shrink-0 cursor-pointer"
+                >
+                  <Tv className="w-3 h-3 text-amber-400" />
+                  <span className="truncate max-w-[120px]">{g.title} Ad</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* Clean & Organized Game Catalog Section */}
         <section id="games" className="py-10 sm:py-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -297,6 +357,7 @@ export default function App() {
                             key={game.id}
                             game={game}
                             onPlayModal={handlePlayGame}
+                            onPreviewAd={handleOpenAd}
                             isFavorite={favorites.includes(game.id)}
                             onToggleFavorite={toggleFavorite}
                           />
@@ -334,6 +395,7 @@ export default function App() {
                     key={game.id}
                     game={game}
                     onPlayModal={handlePlayGame}
+                    onPreviewAd={handleOpenAd}
                     isFavorite={favorites.includes(game.id)}
                     onToggleFavorite={toggleFavorite}
                   />
@@ -356,6 +418,7 @@ export default function App() {
                     key={game.id}
                     game={game}
                     onPlayModal={handlePlayGame}
+                    onPreviewAd={handleOpenAd}
                     isFavorite={favorites.includes(game.id)}
                     onToggleFavorite={toggleFavorite}
                   />
@@ -414,9 +477,73 @@ export default function App() {
           )}
         </section>
 
+        {/* Community Ratings & Game Recommendations Section */}
+        <section className="py-12 border-t border-slate-800/80 bg-[#050a1a]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#07112c] via-[#091538] to-[#050b1d] border border-cyan-500/25 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+              
+              <div className="space-y-2 text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-1.5 text-amber-400">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-amber-400" />
+                  ))}
+                  <span className="ml-2 font-mono font-bold text-white text-base">4.9 / 5.0</span>
+                  <span className="text-slate-400 text-xs hidden sm:inline">· Verified Player Score</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold text-white font-display">
+                  How is your experience on Haris Game Center?
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
+                  Rate the platform out of 5 stars and share your feedback, or recommend which games you want added next to the game center!
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
+                <button
+                  onClick={() => setIsRatingModalOpen(true)}
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-amber-500/20 cursor-pointer"
+                >
+                  <Star className="w-4 h-4 fill-slate-950" />
+                  <span>Rate Website (5 Stars)</span>
+                </button>
+
+                <button
+                  onClick={() => setIsRecommendModalOpen(true)}
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/30 hover:border-cyan-400 text-cyan-300 hover:text-white font-semibold text-xs transition-colors cursor-pointer"
+                >
+                  <Lightbulb className="w-4 h-4 text-cyan-400" />
+                  <span>Recommend Future Games</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
         {/* Developer & Repository Hub Section */}
         <DeveloperHub onOpenAddModal={() => setIsAddModalOpen(true)} />
       </main>
+
+      {/* Floating Experience Rating Dock Button (Bottom Right) */}
+      <aside aria-label="Quick Actions" className="fixed bottom-5 right-5 z-40 flex items-center gap-2">
+        <button
+          onClick={() => setIsRecommendModalOpen(true)}
+          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900/95 hover:bg-slate-800 text-amber-300 border border-amber-500/40 shadow-xl backdrop-blur-md text-xs font-semibold transition-all hover:scale-105 cursor-pointer"
+          title="Recommend a game"
+        >
+          <Lightbulb className="w-4 h-4 text-amber-400" />
+          <span>Recommend Game</span>
+        </button>
+
+        <button
+          onClick={() => setIsRatingModalOpen(true)}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-xs shadow-xl shadow-cyan-500/30 backdrop-blur-md transition-all hover:scale-105 cursor-pointer"
+          title="Rate website experience out of 5 stars"
+        >
+          <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
+          <span>Rate (5 Stars)</span>
+        </button>
+      </aside>
 
       {/* Quiet Footer */}
       <Footer />
@@ -425,6 +552,27 @@ export default function App() {
       <GameModal
         game={selectedGame}
         onClose={() => setSelectedGame(null)}
+      />
+
+      {/* Pre-Roll Game Hype Preview Ad Modal */}
+      <GameHypeAdModal
+        game={adGame}
+        isOpen={isAdModalOpen}
+        onClose={() => setIsAdModalOpen(false)}
+        autoLaunchOnFinish={false}
+      />
+
+      {/* 5-Star Website Rating Modal */}
+      <RatingModal
+        isOpen={isRatingModalOpen}
+        onClose={() => setIsRatingModalOpen(false)}
+        onSaveRating={(r) => setUserRating(r)}
+      />
+
+      {/* Recommend Future Game Modal */}
+      <RecommendGameModal
+        isOpen={isRecommendModalOpen}
+        onClose={() => setIsRecommendModalOpen(false)}
       />
 
       {/* Add / Register Future Game Modal */}

@@ -1,20 +1,27 @@
 import { useState } from 'react';
-import { Github, Sparkles, Menu, X, Play } from 'lucide-react';
+import { Github, Sparkles, Menu, X, Star, Lightbulb } from 'lucide-react';
 import { GAME_CENTER_REPO } from '../data/games';
 
 interface NavbarProps {
   onReplayIntro: () => void;
   onOpenAddModal: () => void;
+  onOpenRatingModal: () => void;
+  onOpenRecommendModal: () => void;
 }
 
-export function Navbar({ onReplayIntro, onOpenAddModal }: NavbarProps) {
+export function Navbar({ 
+  onReplayIntro, 
+  onOpenAddModal, 
+  onOpenRatingModal, 
+  onOpenRecommendModal 
+}: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 w-full bg-[#040814]/90 backdrop-blur-md border-b border-slate-800/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         
-        {/* Zone 1: Brand Wordmark (Single text element in display face) */}
+        {/* Brand Wordmark */}
         <a 
           href="/" 
           className="text-lg sm:text-xl font-extrabold tracking-tight text-white hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0 flex items-center gap-2.5 font-display"
@@ -25,59 +32,68 @@ export function Navbar({ onReplayIntro, onOpenAddModal }: NavbarProps) {
           <span>Haris Game Center</span>
         </a>
 
-        {/* Zone 2: 4–5 Clean single-line text navigation links */}
-        <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-slate-300">
-          <a href="#games" className="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">
-            Games
-          </a>
-          <a href="#nitro-league" className="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">
-            Nitro League
-          </a>
-          <a href="#roblox-cloud" className="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">
-            Roblox
-          </a>
-          <a href="#flappy-bird" className="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">
-            Flappy Bird
-          </a>
-          <a href="#meme-mania" className="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">
-            Meme Mania
-          </a>
-          <a href="#repositories" className="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">
-            Repositories
+        {/* Clean single-line text navigation links */}
+        <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-300">
+          <a href="#games" className="hover:text-cyan-400 transition-colors whitespace-nowrap">
+            Categories
           </a>
           <button 
-            onClick={onOpenAddModal}
-            className="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0 text-slate-400 hover:text-white"
+            onClick={onOpenRecommendModal}
+            className="hover:text-amber-300 transition-colors whitespace-nowrap flex items-center gap-1.5 text-amber-400/90 hover:text-amber-300 cursor-pointer"
           >
-            Add Game
+            <Lightbulb className="w-4 h-4 text-amber-400" />
+            <span>Recommend Game</span>
+          </button>
+          <button 
+            onClick={onOpenRatingModal}
+            className="hover:text-amber-300 transition-colors whitespace-nowrap flex items-center gap-1.5 text-slate-300 hover:text-white cursor-pointer"
+          >
+            <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+            <span>Rate Website</span>
+          </button>
+          <button 
+            onClick={onOpenAddModal}
+            className="hover:text-cyan-400 transition-colors whitespace-nowrap text-slate-400 hover:text-white cursor-pointer"
+          >
+            + Register Game
           </button>
         </nav>
 
-        {/* Zone 3: 1 Primary action & utility */}
-        <div className="flex items-center gap-3 shrink-0">
+        {/* Action & utility */}
+        <div className="flex items-center gap-2.5 shrink-0">
           <button
-            onClick={onReplayIntro}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/80 text-xs font-medium text-slate-300 hover:text-cyan-400 hover:border-slate-700 transition-colors"
-            title="Replay opening transition"
+            onClick={onOpenRecommendModal}
+            className="hidden sm:inline-flex md:hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 text-xs font-semibold text-amber-300 hover:bg-amber-500/20 transition-colors cursor-pointer"
+            title="Recommend a future game"
           >
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Replay Intro</span>
+            <Lightbulb className="w-3.5 h-3.5" />
+            <span>Recommend Game</span>
+          </button>
+
+          <button
+            onClick={onOpenRatingModal}
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/80 text-xs font-medium text-slate-300 hover:text-amber-400 hover:border-slate-700 transition-colors cursor-pointer"
+            title="Rate your experience on this website"
+          >
+            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+            <span>Rate</span>
           </button>
 
           <a
             href={GAME_CENTER_REPO}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs transition-colors whitespace-nowrap shrink-0 shadow-sm shadow-cyan-500/20"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs transition-colors whitespace-nowrap shrink-0 shadow-sm shadow-cyan-500/20"
           >
             <Github className="w-3.5 h-3.5 text-slate-950" />
-            <span>GitHub Project</span>
+            <span className="hidden sm:inline">GitHub Project</span>
+            <span className="sm:hidden">Repo</span>
           </a>
 
           {/* Mobile hamburger toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -87,70 +103,52 @@ export function Navbar({ onReplayIntro, onOpenAddModal }: NavbarProps) {
 
       {/* Mobile dropdown menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#070d1f] border-b border-slate-800 px-4 pt-3 pb-5 space-y-3">
+        <div className="lg:hidden bg-[#070d1f] border-b border-slate-800 px-4 pt-3 pb-5 space-y-2">
           <a
             href="#games"
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg"
           >
-            All Games
+            Browse Categories &amp; Games
           </a>
-          <a
-            href="#nitro-league"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg"
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onOpenRecommendModal();
+            }}
+            className="w-full text-left px-3 py-2 text-sm font-medium text-amber-300 hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer"
           >
-            Nitro League
-          </a>
-          <a
-            href="#roblox-cloud"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg"
+            <Lightbulb className="w-4 h-4 text-amber-400" />
+            <span>Recommend a Future Game</span>
+          </button>
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onOpenRatingModal();
+            }}
+            className="w-full text-left px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer"
           >
-            Roblox (Cloud Edition)
-          </a>
-          <a
-            href="#flappy-bird"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg"
-          >
-            Flappy Bird Arcade
-          </a>
-          <a
-            href="#meme-mania"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg"
-          >
-            Meme Mania
-          </a>
-          <a
-            href="#repositories"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg"
-          >
-            GitHub Repositories
-          </a>
+            <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+            <span>Rate Experience (5 Stars)</span>
+          </button>
           <button
             onClick={() => {
               setMobileMenuOpen(false);
               onOpenAddModal();
             }}
-            className="w-full text-left px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg"
+            className="w-full text-left px-3 py-2 text-sm font-medium text-cyan-300 hover:bg-slate-800 rounded-lg cursor-pointer"
           >
-            + Add / Register New Game
+            + Register New Game
           </button>
-          <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onReplayIntro();
-              }}
-              className="text-xs text-slate-400 hover:text-cyan-400 flex items-center gap-1.5"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Replay Intro Transition</span>
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onReplayIntro();
+            }}
+            className="w-full text-left px-3 py-2 text-xs text-slate-400 hover:text-white cursor-pointer"
+          >
+            Replay Opening Intro
+          </button>
         </div>
       )}
     </header>

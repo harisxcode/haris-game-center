@@ -54,7 +54,17 @@ export function AddGameModal({ isOpen, onClose, onAddGame }: AddGameModalProps) 
       releaseYear: new Date().getFullYear().toString(),
       techStack: directPlayOnly ? ['Cloud Stream Engine', 'Direct Launch'] : ['HTML5 Canvas', 'TypeScript', 'GitHub Pages'],
       isFeatured: false,
-      directPlayOnly
+      directPlayOnly,
+      hypeAd: {
+        headline: `${title.toUpperCase()} IS READY TO PLAY!`,
+        badge: '🚀 COMMUNITY SPOTLIGHT',
+        funPitch: description.trim() || 'Fast-paced, high-intensity browser gaming action built for instant fun!',
+        hypeQuote: 'Awesome new addition to Haris Game Center—check it out!',
+        reviewer: 'Game Center Community',
+        ratingScore: '9.8 / 10',
+        gameplayTips: ['Learn controls for best high scores', 'Compete with friends for top ranks'],
+        excitementLevel: 'COMMUNITY FAVORITE'
+      }
     };
 
     onAddGame(newGame);
