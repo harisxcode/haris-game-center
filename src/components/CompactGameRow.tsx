@@ -38,13 +38,21 @@ export function CompactGameRow({ game, onPlayModal, onPreviewAd, isFavorite, onT
 
           {/* Quick hover play icon */}
           {game.status === 'live' && (
-            game.directPlayOnly ? (
+            game.id === 'music-stream' ? (
+              <button
+                onClick={() => onPlayModal(game)}
+                className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
+                title="Stream Music Player"
+              >
+                <Play className="w-5 h-5 fill-cyan-400 text-cyan-400" />
+              </button>
+            ) : game.directPlayOnly ? (
               <a
                 href={game.playUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
-                title="Play directly on now.gg"
+                title={game.id === 'roblox-cloud' ? 'Play on now.gg' : 'Play Direct'}
               >
                 <ExternalLink className="w-5 h-5 text-cyan-400" />
               </a>
@@ -142,15 +150,25 @@ export function CompactGameRow({ game, onPlayModal, onPreviewAd, isFavorite, onT
 
         {/* Launch / Play in new tab */}
         {game.status === 'live' ? (
-          <a
-            href={game.playUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm shadow-cyan-500/20"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            <span>{game.id === 'roblox-cloud' ? 'Play (now.gg)' : (game.directPlayOnly ? 'Play Direct' : 'Play')}</span>
-          </a>
+          game.id === 'music-stream' ? (
+            <button
+              onClick={() => onPlayModal(game)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm shadow-cyan-500/20 cursor-pointer"
+            >
+              <Play className="w-3.5 h-3.5 fill-slate-950" />
+              <span>Stream Music</span>
+            </button>
+          ) : (
+            <a
+              href={game.playUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm shadow-cyan-500/20"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>{game.id === 'roblox-cloud' ? 'Play (now.gg)' : (game.directPlayOnly ? 'Play Direct' : 'Play')}</span>
+            </a>
+          )
         ) : (
           <span className="text-xs text-slate-500 font-mono px-3 py-1 bg-slate-950 rounded border border-slate-800">
             Coming Soon

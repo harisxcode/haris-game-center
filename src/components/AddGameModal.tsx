@@ -29,6 +29,7 @@ export function AddGameModal({ isOpen, onClose, onAddGame }: AddGameModalProps) 
       case 'action': return 'Action Adventure';
       case 'casual': return 'Casual & Viral';
       case 'puzzle': return 'Puzzle & Strategy';
+      case 'other': return 'Web Apps & Tools';
       default: return 'Retro Arcade';
     }
   };
@@ -160,6 +161,7 @@ export function AddGameModal({ isOpen, onClose, onAddGame }: AddGameModalProps) 
                 <option value="action">⚡ Action &amp; Platformer</option>
                 <option value="casual">🎭 Casual &amp; Viral</option>
                 <option value="puzzle">🧩 Puzzle &amp; Strategy</option>
+                <option value="other">🌐 Other (Apps &amp; Websites)</option>
               </select>
             </div>
           </div>

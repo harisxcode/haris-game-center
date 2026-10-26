@@ -2,7 +2,7 @@
 
 Interactive landing hub for Haris's arcade and racing web games, featuring **Nitro League** and **Flappy Bird Arcade** with direct play links, in-app playable viewports, and open-source project repositories.
 
-## 🚀 Published Games
+## 🚀 Published Games & Concepts
 
 - **Nitro League**: [Play Game](https://harisxcode.github.io/nitro-league/) · [GitHub Repo](https://github.com/harisxcode/nitro-league)
 - **Escape Road**: [Direct Play](https://unblockedescaperoads.com/) · 3D Police Getaway Chase
@@ -10,6 +10,7 @@ Interactive landing hub for Haris's arcade and racing web games, featuring **Nit
 - **Roblox (Cloud Edition)**: [Direct Play on now.gg](https://now.gg/apps/a/19900/b.html)
 - **Flappy Bird Arcade**: [Play Game](https://harisxcode.github.io/flappy-bird-arcade/) · [GitHub Repo](https://github.com/harisxcode/flappy-bird-arcade)
 - **Meme Mania**: [Play Game](https://harisxcode.github.io/meme-mania/) · [GitHub Repo](https://github.com/harisxcode/meme-mania)
+- **Music Stream** (`other` category): [Direct Launch](https://is.gd/musicstream) · High-energy web audio & playlist stream concept
 
 ---
 

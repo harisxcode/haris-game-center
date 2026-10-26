@@ -16,11 +16,12 @@ import {
   Sparkles,
   Cloud,
   BrainCircuit,
-  Layers
+  Layers,
+  Headphones
 } from 'lucide-react';
 import { Game } from '../data/games';
 
-export type CategoryFilter = 'all' | 'racing' | 'cloud' | 'arcade' | 'action' | 'casual' | 'puzzle' | 'favorites' | 'upcoming';
+export type CategoryFilter = 'all' | 'racing' | 'cloud' | 'arcade' | 'action' | 'casual' | 'puzzle' | 'other' | 'favorites' | 'upcoming';
 export type SortOption = 'featured' | 'az' | 'newest';
 export type ViewMode = 'shelves' | 'grid' | 'compact';
 
@@ -91,6 +92,7 @@ export function GameFilterControls({
     { id: 'action', label: 'Action & Platformer', icon: Flame, count: games.filter(g => g.category === 'action').length },
     { id: 'casual', label: 'Casual & Viral', icon: Laugh, count: games.filter(g => g.category === 'casual' || (g.category as string) === 'meme').length },
     { id: 'puzzle', label: 'Puzzle & Strategy', icon: BrainCircuit, count: games.filter(g => g.category === 'puzzle').length },
+    { id: 'other', label: 'Other (Apps & Web)', icon: Headphones, count: games.filter(g => g.category === 'other').length },
     { id: 'favorites', label: 'My Favorites', icon: Heart, count: favoritesCount },
     { id: 'upcoming', label: 'In Development', icon: Clock, count: games.filter(g => g.status === 'upcoming').length }
   ];

@@ -17,6 +17,7 @@ import { RecommendGameModal } from './components/RecommendGameModal';
 import { DeveloperHub } from './components/DeveloperHub';
 import { Footer } from './components/Footer';
 import { IntroScreen } from './components/IntroScreen';
+import { MusicStreamPlayerModal } from './components/MusicStreamPlayerModal';
 import { INITIAL_GAMES, Game, UNIVERSAL_CATEGORIES } from './data/games';
 import { 
   Gamepad2, 
@@ -34,7 +35,8 @@ import {
   ArrowRight,
   Star,
   Lightbulb,
-  Tv
+  Tv,
+  Headphones
 } from 'lucide-react';
 
 export default function App() {
@@ -62,6 +64,24 @@ export default function App() {
   const [isAdModalOpen, setIsAdModalOpen] = useState(false);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [isRecommendModalOpen, setIsRecommendModalOpen] = useState(false);
+  const [isMusicStreamModalOpen, setIsMusicStreamModalOpen] = useState(false);
+
+  const [musicStreamUrl, setMusicStreamUrl] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem('haris_music_stream_url');
+      return saved || 'https://is.gd/musicstream';
+    } catch {
+      return 'https://is.gd/musicstream';
+    }
+  });
+
+  const handleUpdateMusicStreamUrl = (newUrl: string) => {
+    setMusicStreamUrl(newUrl);
+    try {
+      localStorage.setItem('haris_music_stream_url', newUrl);
+    } catch {}
+    setGames(prev => prev.map(g => g.id === 'music-stream' ? { ...g, playUrl: newUrl, repoUrl: newUrl } : g));
+  };
 
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -162,7 +182,9 @@ export default function App() {
   }, [games, activeCategory, searchQuery, favorites, sortOption]);
 
   const handlePlayGame = (game: Game) => {
-    if (game.directPlayOnly) {
+    if (game.id === 'music-stream') {
+      setIsMusicStreamModalOpen(true);
+    } else if (game.directPlayOnly) {
       window.open(game.playUrl, '_blank', 'noopener,noreferrer');
     } else {
       setSelectedGame(game);
@@ -177,6 +199,7 @@ export default function App() {
       case 'action': return Flame;
       case 'casual': return Laugh;
       case 'puzzle': return BrainCircuit;
+      case 'other': return Headphones;
       case 'favorites': return Heart;
       case 'upcoming': return Clock;
       default: return SlidersHorizontal;
@@ -191,6 +214,7 @@ export default function App() {
     { id: 'action', label: 'Action & Platformer', icon: Flame },
     { id: 'casual', label: 'Casual & Viral', icon: Laugh },
     { id: 'puzzle', label: 'Puzzle & Strategy', icon: BrainCircuit },
+    { id: 'other', label: 'Other', icon: Headphones },
     { id: 'favorites', label: 'Favorites', icon: Heart }
   ];
 
@@ -559,7 +583,15 @@ export default function App() {
         game={adGame}
         isOpen={isAdModalOpen}
         onClose={() => setIsAdModalOpen(false)}
-        autoLaunchOnFinish={false}
+        onLaunchGame={handlePlayGame}
+      />
+
+      {/* Interactive Music Stream Player & Concept Debug Console */}
+      <MusicStreamPlayerModal
+        isOpen={isMusicStreamModalOpen}
+        onClose={() => setIsMusicStreamModalOpen(false)}
+        configuredUrl={musicStreamUrl}
+        onUpdateConfiguredUrl={handleUpdateMusicStreamUrl}
       />
 
       {/* 5-Star Website Rating Modal */}

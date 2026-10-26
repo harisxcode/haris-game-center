@@ -34,18 +34,18 @@ export function HeroSection({ games }: HeroSectionProps) {
             </h1>
 
             <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
-              Welcome to Haris Game Center—an organized universal gaming hub built for rapid browsing and instant play. Explore cleanly categorized racing, arcade, action, casual, and cloud games with zero installations.
+              Welcome to Haris Game Center—an organized universal gaming hub built for rapid browsing and instant play. Explore cleanly categorized racing, arcade, action, casual, cloud games, and other web concepts with zero installations.
             </p>
 
             {/* Unboxed Metadata Stats Strip */}
             <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-400 pt-2 pb-2">
               <div className="flex items-center gap-2">
                 <span className="font-bold text-white tabular-nums text-base">{liveCount}</span>
-                <span>Active Games</span>
+                <span>Active Games &amp; Apps</span>
               </div>
               <span aria-hidden="true" className="text-slate-700">·</span>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-cyan-400 tabular-nums text-base">6</span>
+                <span className="font-bold text-cyan-400 tabular-nums text-base">7</span>
                 <span>Universal Categories</span>
               </div>
               <span aria-hidden="true" className="text-slate-700">·</span>

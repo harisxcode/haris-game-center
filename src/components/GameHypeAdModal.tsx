@@ -20,23 +20,21 @@ interface GameHypeAdModalProps {
   game: Game | null;
   isOpen: boolean;
   onClose: () => void;
-  autoLaunchOnFinish?: boolean;
+  onLaunchGame?: (game: Game) => void;
 }
 
 export function GameHypeAdModal({ 
   game, 
   isOpen, 
   onClose,
-  autoLaunchOnFinish = true 
+  onLaunchGame 
 }: GameHypeAdModalProps) {
   const [countdown, setCountdown] = useState(4);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [hasLaunched, setHasLaunched] = useState(false);
 
   useEffect(() => {
     if (!isOpen || !game) {
       setCountdown(4);
-      setHasLaunched(false);
       return;
     }
 
@@ -45,7 +43,6 @@ export function GameHypeAdModal({
     }
 
     setCountdown(4);
-    setHasLaunched(false);
 
     const timer = setInterval(() => {
       setCountdown((prev) => {
@@ -60,22 +57,17 @@ export function GameHypeAdModal({
     return () => clearInterval(timer);
   }, [isOpen, game]);
 
-  // When countdown hits 0, auto launch if requested
-  useEffect(() => {
-    if (countdown === 0 && autoLaunchOnFinish && !hasLaunched && game) {
-      handleDirectLaunch();
-    }
-  }, [countdown, autoLaunchOnFinish, hasLaunched, game]);
-
   if (!isOpen || !game) return null;
 
   const handleDirectLaunch = () => {
-    setHasLaunched(true);
     if (soundEnabled) {
       playArcadeSfx('click');
     }
-    // Launch directly in a new tab without iframe
-    window.open(game.playUrl, '_blank', 'noopener,noreferrer');
+    if (onLaunchGame) {
+      onLaunchGame(game);
+    } else {
+      window.open(game.playUrl, '_blank', 'noopener,noreferrer');
+    }
     onClose();
   };
 
@@ -219,11 +211,26 @@ export function GameHypeAdModal({
               </div>
             )}
 
+            {/* Escape Road Network Mirror Helper */}
+            {game.id === 'escape-road' && (
+              <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between text-[11px] text-slate-300">
+                <span>School or network blocking unblockedescaperoads.com?</span>
+                <a
+                  href="https://sites.google.com/view/drive-u-7-home/escape-road"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-cyan-400 hover:text-cyan-300 underline font-semibold shrink-0 ml-2"
+                >
+                  Use Google Sites Mirror
+                </a>
+              </div>
+            )}
+
             {/* Bottom Actions Row with Skip & Direct Launch */}
             <div className="pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-xs text-slate-400">
                 <span className="font-mono tabular-nums text-cyan-400 font-bold text-sm">
-                  {countdown > 0 ? `Launching in ${countdown}s` : 'Ready to Launch!'}
+                  {countdown > 0 ? `Ad Ends in ${countdown}s` : 'Ready to Launch!'}
                 </span>
                 <span>· Instant Direct Play</span>
               </div>
@@ -241,7 +248,11 @@ export function GameHypeAdModal({
                   className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 cursor-pointer"
                 >
                   <Play className="w-3.5 h-3.5 fill-white" />
-                  <span>{countdown > 0 ? 'Skip Ad & Play Now' : 'Launch Game Now'}</span>
+                  <span>
+                    {game.id === 'music-stream' 
+                      ? (countdown > 0 ? 'Skip Ad & Open Player' : 'Launch Music Stream') 
+                      : (countdown > 0 ? 'Skip Ad & Play' : 'Play Direct Now')}
+                  </span>
                   <FastForward className="w-3.5 h-3.5" />
                 </button>
               </div>

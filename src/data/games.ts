@@ -6,18 +6,19 @@ import memeManiaThumb from '../assets/images/thumb_meme_mania_1792447637658.jpg'
 import robloxThumb from '../assets/images/thumb_roblox_cloud_1792545369843.jpg';
 import harisArcadeThumb from '../assets/images/thumb_haris_arcade_1792546847417.jpg';
 import escapeRoadThumb from '../assets/images/thumb_escape_road_1792766021496.jpg';
+import musicStreamThumb from '../assets/images/thumb_music_stream_1792979603219.jpg';
 
-export { nitroThumb, flappyThumb, heroBanner, mascotLogo, memeManiaThumb, robloxThumb, harisArcadeThumb, escapeRoadThumb };
+export { nitroThumb, flappyThumb, heroBanner, mascotLogo, memeManiaThumb, robloxThumb, harisArcadeThumb, escapeRoadThumb, musicStreamThumb };
 
 export interface GameControl {
   key: string;
   action: string;
 }
 
-export type GameCategory = 'racing' | 'arcade' | 'action' | 'cloud' | 'casual' | 'puzzle' | 'meme';
+export type GameCategory = 'racing' | 'arcade' | 'action' | 'cloud' | 'casual' | 'puzzle' | 'meme' | 'other';
 
 export interface CategoryMeta {
-  id: 'racing' | 'arcade' | 'action' | 'cloud' | 'casual' | 'puzzle';
+  id: 'racing' | 'arcade' | 'action' | 'cloud' | 'casual' | 'puzzle' | 'other';
   title: string;
   shortLabel: string;
   tagline: string;
@@ -77,6 +78,13 @@ export const UNIVERSAL_CATEGORIES: CategoryMeta[] = [
     shortLabel: 'Puzzle & Strategy',
     tagline: 'Logic puzzles, tactical planning & cerebral challenges',
     iconName: 'BrainCircuit'
+  },
+  {
+    id: 'other',
+    title: 'Other Apps & Websites',
+    shortLabel: 'Other',
+    tagline: 'Web tools, streaming audio players & experimental online concepts',
+    iconName: 'Headphones'
   }
 ];
 
@@ -85,7 +93,7 @@ export interface Game {
   title: string;
   tagline: string;
   description: string;
-  genre: 'Arcade Racing' | 'Retro Arcade' | 'Action Adventure' | 'Puzzle & Strategy' | 'Cloud Gaming' | 'Casual & Viral';
+  genre: 'Arcade Racing' | 'Retro Arcade' | 'Action Adventure' | 'Puzzle & Strategy' | 'Cloud Gaming' | 'Casual & Viral' | 'Music & Streaming' | 'Web Apps & Tools';
   category: GameCategory;
   status: 'live' | 'upcoming';
   playUrl: string;
@@ -353,6 +361,48 @@ export const INITIAL_GAMES: Game[] = [
         'Chain consecutive fast reactions for huge combo bonus scores'
       ],
       excitementLevel: '100% VIRAL CHAOS'
+    }
+  },
+  {
+    id: 'music-stream',
+    title: 'Music Stream',
+    tagline: 'Stream curated music, playlists & background beats in your browser',
+    description: 'Interactive web music streaming player and audio hub. Listen to streaming beats, discover synthwave and chill tracks, and enjoy uninterrupted background playback right while browsing and gaming.',
+    genre: 'Music & Streaming',
+    category: 'other',
+    status: 'live',
+    playUrl: 'https://is.gd/musicstream',
+    repoUrl: 'https://is.gd/musicstream',
+    thumbnailUrl: musicStreamThumb,
+    features: [
+      'Direct audio streaming playback with web audio controls',
+      'Ideal background music companion for gaming sessions',
+      'Lightweight browser execution with zero installation needed',
+      'Dedicated other concepts showcase'
+    ],
+    controls: [
+      { key: 'Spacebar', action: 'Play / Pause Stream' },
+      { key: 'M', action: 'Mute / Unmute' },
+      { key: 'Click / Tap', action: 'Select Track & Volume' }
+    ],
+    releaseYear: '2025',
+    techStack: ['Web Audio API', 'Streaming Player', 'Direct Launch'],
+    isFeatured: true,
+    isExternal: false,
+    directPlayOnly: false,
+    hypeAd: {
+      headline: 'STREAM BEATS & SOUNDTRACKS WHILE YOU PLAY!',
+      badge: '🎧 AUDIO & STREAMING APP',
+      funPitch: 'Elevate your gaming and browsing experience with Music Stream! Tune in to smooth background music, high-energy gaming beats, and curated audio streams directly in your browser with zero hassle.',
+      hypeQuote: 'The ultimate web soundtrack player—perfect for gaming background music and chill listening sessions!',
+      reviewer: 'Web Audio Magazine',
+      ratingScore: '9.8 / 10',
+      gameplayTips: [
+        'Leave Music Stream playing in a tab while playing Nitro League or Escape Road',
+        'Use spacebar to quickly pause/resume your audio stream',
+        'Check back often for newly added web concepts in the Other category'
+      ],
+      excitementLevel: 'CHILL & IMMERSIVE'
     }
   }
 ];

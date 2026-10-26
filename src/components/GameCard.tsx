@@ -102,7 +102,15 @@ export function GameCard({
               <span>Preview Ad</span>
             </button>
 
-            {game.directPlayOnly ? (
+            {game.id === 'music-stream' ? (
+              <button
+                onClick={() => onPlayModal(game)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:bg-cyan-400 transition-transform transform active:scale-95 shadow-xl shadow-cyan-500/30 cursor-pointer"
+              >
+                <Play className="w-3.5 h-3.5 fill-slate-950" />
+                <span>Stream Music</span>
+              </button>
+            ) : game.directPlayOnly ? (
               <a
                 href={game.playUrl}
                 target="_blank"
@@ -192,6 +200,20 @@ export function GameCard({
                 </ul>
               </div>
             )}
+
+            {game.id === 'escape-road' && (
+              <div className="pt-1">
+                <a
+                  href="https://sites.google.com/view/drive-u-7-home/escape-road"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[11px] text-cyan-400 hover:text-cyan-300 underline font-medium"
+                >
+                  <span>Google Sites Unblocked Mirror</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            )}
           </div>
         )}
 
@@ -199,15 +221,25 @@ export function GameCard({
         <div className="pt-3 border-t border-slate-800/80 mt-auto flex items-center gap-2">
           {game.status === 'live' ? (
             <>
-              <a
-                href={game.playUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm shadow-cyan-500/20"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>{game.id === 'roblox-cloud' ? 'Play (now.gg)' : (game.directPlayOnly ? 'Play Direct' : 'Play')}</span>
-              </a>
+              {game.id === 'music-stream' ? (
+                <button
+                  onClick={() => onPlayModal(game)}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm shadow-cyan-500/20 cursor-pointer"
+                >
+                  <Play className="w-3.5 h-3.5 fill-slate-950" />
+                  <span>Stream Music</span>
+                </button>
+              ) : (
+                <a
+                  href={game.playUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm shadow-cyan-500/20"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>{game.id === 'roblox-cloud' ? 'Play (now.gg)' : (game.directPlayOnly ? 'Play Direct' : 'Play')}</span>
+                </a>
+              )}
 
               {/* Preview Ad Button in Footer */}
               <button

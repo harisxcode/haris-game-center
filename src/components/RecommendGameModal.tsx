@@ -190,6 +190,7 @@ export function RecommendGameModal({ isOpen, onClose }: RecommendGameModalProps)
                   <option value="action">⚡ Action &amp; Platformer</option>
                   <option value="casual">🎭 Casual &amp; Viral</option>
                   <option value="puzzle">🧩 Puzzle &amp; Strategy</option>
+                  <option value="other">🌐 Other (Apps &amp; Websites)</option>
                 </select>
               </div>
             </div>
