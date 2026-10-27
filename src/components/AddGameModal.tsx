@@ -56,6 +56,9 @@ export function AddGameModal({ isOpen, onClose, onAddGame }: AddGameModalProps) 
       techStack: directPlayOnly ? ['Cloud Stream Engine', 'Direct Launch'] : ['HTML5 Canvas', 'TypeScript', 'GitHub Pages'],
       isFeatured: false,
       directPlayOnly,
+      rating: 5.0,
+      ratingCount: 1,
+      playCount: 120,
       hypeAd: {
         headline: `${title.toUpperCase()} IS READY TO PLAY!`,
         badge: '🚀 COMMUNITY SPOTLIGHT',

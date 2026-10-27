@@ -17,11 +17,12 @@ import {
   Cloud,
   BrainCircuit,
   Layers,
-  Headphones
+  Headphones,
+  Trophy
 } from 'lucide-react';
 import { Game } from '../data/games';
 
-export type CategoryFilter = 'all' | 'racing' | 'cloud' | 'arcade' | 'action' | 'casual' | 'puzzle' | 'other' | 'favorites' | 'upcoming';
+export type CategoryFilter = 'all' | 'recommended' | 'racing' | 'cloud' | 'arcade' | 'action' | 'casual' | 'puzzle' | 'sports' | 'other' | 'favorites' | 'upcoming';
 export type SortOption = 'featured' | 'az' | 'newest';
 export type ViewMode = 'shelves' | 'grid' | 'compact';
 
@@ -86,10 +87,12 @@ export function GameFilterControls({
 
   const categories: { id: CategoryFilter; label: string; icon: typeof Gamepad2; count: number }[] = [
     { id: 'all', label: 'All Categories', icon: SlidersHorizontal, count: games.length },
+    { id: 'recommended', label: '⭐ Recommended (Top Picks)', icon: Sparkles, count: games.filter(g => g.isFeatured || g.isPopular || g.rating >= 4.8).length },
     { id: 'racing', label: 'Racing & Driving', icon: Car, count: games.filter(g => g.category === 'racing').length },
     { id: 'cloud', label: 'Cloud & Streaming', icon: Cloud, count: games.filter(g => g.category === 'cloud').length },
     { id: 'arcade', label: 'Arcade & Retro', icon: Gamepad2, count: games.filter(g => g.category === 'arcade').length },
     { id: 'action', label: 'Action & Platformer', icon: Flame, count: games.filter(g => g.category === 'action').length },
+    { id: 'sports', label: 'Sports & Football', icon: Trophy, count: games.filter(g => g.category === 'sports').length },
     { id: 'casual', label: 'Casual & Viral', icon: Laugh, count: games.filter(g => g.category === 'casual' || (g.category as string) === 'meme').length },
     { id: 'puzzle', label: 'Puzzle & Strategy', icon: BrainCircuit, count: games.filter(g => g.category === 'puzzle').length },
     { id: 'other', label: 'Other (Apps & Web)', icon: Headphones, count: games.filter(g => g.category === 'other').length },

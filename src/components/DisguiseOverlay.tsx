@@ -1,0 +1,120 @@
+import React, { useState } from 'react';
+import { ShieldAlert, X, Eye, FileText, BookOpen, GraduationCap, Calculator } from 'lucide-react';
+import { DisguiseType } from '../types';
+
+interface DisguiseOverlayProps {
+  isActive: boolean;
+  disguiseType: DisguiseType;
+  onExit: () => void;
+}
+
+export const DisguiseOverlay: React.FC<DisguiseOverlayProps> = ({
+  isActive,
+  disguiseType,
+  onExit
+}) => {
+  if (!isActive) return null;
+
+  return (
+    <div className="fixed inset-0 z-[9999] bg-white text-slate-900 select-text overflow-auto font-sans">
+      {/* Secret Exit Trigger in corner */}
+      <button
+        onClick={onExit}
+        className="fixed bottom-2 right-2 opacity-10 hover:opacity-100 transition-opacity p-2 rounded bg-slate-900 text-white text-xs z-[10000]"
+        title="Resume Gaming"
+      >
+        Exit Stealth (Or press Panic Key)
+      </button>
+
+      {disguiseType === 'google_docs' && (
+        <div className="min-h-screen bg-[#f9fbfd] flex flex-col">
+          {/* Mock Google Docs toolbar */}
+          <div className="bg-white border-b border-slate-200 px-4 py-2 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-blue-600 font-bold text-xl">≡ Docs</span>
+              <div>
+                <div className="text-sm font-semibold text-slate-800">
+                  AP World History - Post-Classical Trade Networks Research Paper.docx
+                </div>
+                <div className="text-[11px] text-slate-500 flex gap-3">
+                  <span>File</span>
+                  <span>Edit</span>
+                  <span>View</span>
+                  <span>Insert</span>
+                  <span>Format</span>
+                  <span>Tools</span>
+                </div>
+              </div>
+            </div>
+            <div className="text-xs text-slate-500 font-mono">
+              Last edit was 2 minutes ago
+            </div>
+          </div>
+
+          {/* Paper Canvas */}
+          <div className="flex-1 flex justify-center p-8">
+            <div className="w-full max-w-3xl bg-white shadow-md border border-slate-200 p-12 min-h-[900px] text-slate-800 text-sm leading-relaxed space-y-4 font-serif">
+              <h1 className="text-2xl font-bold text-center mb-6">
+                The Economic Impact of the Trans-Saharan and Maritime Silk Road Exchanges
+              </h1>
+              <p className="text-justify indent-8">
+                Between the years 1200 and 1450 CE, hemispheric trade across Afro-Eurasia underwent an unprecedented period of intensification. Nomadic pastoralists and merchant guilds facilitated the exchange of both high-value luxury goods and cultural knowledge. Through caravanserais, oasis hubs along the Taklamakan, and monsoon-navigated dhows across the Indian Ocean basin, commercial connections flourished.
+              </p>
+              <p className="text-justify indent-8">
+                In West Africa, the Mali Empire established regional hegemony under Sundiata and later Mansa Musa. Gold reserves from the Bambuk and Bure goldfields entered Mediterranean markets in exchange for Saharan rock salt, textiles, and Andalusian jurisprudence manuscripts.
+              </p>
+              <p className="text-justify indent-8">
+                Simultaneously, the development of maritime technologies including the magnetic compass, sternpost rudders, and astronomical astrolabes allowed merchant sailors from Guangzhou to Calicut and Kilwa to coordinate departures with seasonal monsoon wind shifts.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {disguiseType === 'canvas_lms' && (
+        <div className="min-h-screen bg-[#f5f5f5] flex">
+          {/* Canvas Sidebar */}
+          <div className="w-16 bg-[#2d3b45] text-white flex flex-col items-center py-4 gap-6 shrink-0">
+            <GraduationCap className="w-8 h-8 text-white" />
+            <span className="text-[10px] font-bold">Dashboard</span>
+            <span className="text-[10px]">Courses</span>
+            <span className="text-[10px]">Calendar</span>
+            <span className="text-[10px]">Inbox</span>
+          </div>
+
+          {/* Main Content */}
+          <div className="flex-1 p-8">
+            <div className="max-w-4xl bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
+              <div className="border-b border-slate-200 pb-4 mb-4">
+                <span className="text-xs text-slate-500 uppercase tracking-wider">Physics Honors · Module 4</span>
+                <h2 className="text-xl font-bold text-slate-900 mt-1">Assignment: Gravitational Potential & Kinetic Energy Equilibrium</h2>
+                <p className="text-xs text-slate-500 mt-1">Due Oct 28 at 11:59pm · 50 Points Possible</p>
+              </div>
+
+              <div className="text-sm text-slate-700 space-y-3">
+                <p>
+                  <strong>Instructions:</strong> Complete questions 1 through 12 using standard gravitational acceleration g = 9.81 m/s². Clearly indicate all step-by-step vector decompositions.
+                </p>
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded text-xs font-mono">
+                  Equation 1: E_total = (1/2) * m * v² + m * g * h
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {disguiseType === 'wikipedia' && (
+        <div className="min-h-screen bg-white p-8 max-w-4xl mx-auto font-sans text-slate-900">
+          <div className="border-b border-slate-300 pb-2 mb-4">
+            <h1 className="text-3xl font-serif">Antarctic Treaty System</h1>
+            <p className="text-xs text-slate-500">From Wikipedia, the free encyclopedia</p>
+          </div>
+          <p className="text-sm text-slate-800 leading-relaxed">
+            The <strong>Antarctic Treaty</strong> and related agreements, collectively known as the <em>Antarctic Treaty System</em> (ATS), regulate international relations with respect to Antarctica, Earth's only continent without a native human population. For the purposes of the treaty system, Antarctica is defined as all of the land and ice shelves south of 60°S latitude.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};

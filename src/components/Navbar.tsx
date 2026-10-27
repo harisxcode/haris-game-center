@@ -1,154 +1,238 @@
 import { useState } from 'react';
-import { Github, Sparkles, Menu, X, Star, Lightbulb } from 'lucide-react';
-import { GAME_CENTER_REPO } from '../data/games';
+import { 
+  Github, 
+  Sparkles, 
+  Menu, 
+  X, 
+  Star, 
+  Lightbulb, 
+  ShieldAlert, 
+  Snowflake, 
+  Coins, 
+  Crown, 
+  LogOut,
+  User,
+  Heart
+} from 'lucide-react';
+import { UserAccount } from '../types';
+import pabloMascotImg from '../assets/images/retro_pablo_mascot_1793055166374.jpg';
 
 interface NavbarProps {
-  onReplayIntro: () => void;
-  onOpenAddModal: () => void;
-  onOpenRatingModal: () => void;
+  currentUser: UserAccount | null;
+  onOpenPabloHub: () => void;
+  onTriggerStealth: () => void;
+  snowEnabled: boolean;
+  onToggleSnow: () => void;
+  onSignOut: () => void;
   onOpenRecommendModal: () => void;
+  onOpenRatingModal: () => void;
+  onOpenVipModal: () => void;
 }
 
 export function Navbar({ 
-  onReplayIntro, 
-  onOpenAddModal, 
-  onOpenRatingModal, 
-  onOpenRecommendModal 
+  currentUser,
+  onOpenPabloHub,
+  onTriggerStealth,
+  snowEnabled,
+  onToggleSnow,
+  onSignOut,
+  onOpenRecommendModal,
+  onOpenRatingModal,
+  onOpenVipModal
 }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const points = currentUser?.penguinPoints || 0;
+  const isVip = !!currentUser?.isVip;
+
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#040814]/90 backdrop-blur-md border-b border-slate-800/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 w-full bg-[#040814]/90 backdrop-blur-md border-b border-cyan-500/20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
         
-        {/* Brand Wordmark */}
-        <a 
-          href="/" 
-          className="text-lg sm:text-xl font-extrabold tracking-tight text-white hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0 flex items-center gap-2.5 font-display"
-        >
-          <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-400 flex items-center justify-center text-white text-xs font-black shadow-md shadow-cyan-500/20">
-            H
-          </span>
-          <span>Haris Game Center</span>
-        </a>
-
-        {/* Clean single-line text navigation links */}
-        <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-300">
-          <a href="#games" className="hover:text-cyan-400 transition-colors whitespace-nowrap">
-            Categories
-          </a>
-          <button 
-            onClick={onOpenRecommendModal}
-            className="hover:text-amber-300 transition-colors whitespace-nowrap flex items-center gap-1.5 text-amber-400/90 hover:text-amber-300 cursor-pointer"
+        {/* Brand Wordmark & Mascot Logo */}
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            onClick={onOpenPabloHub}
+            className="flex items-center gap-2.5 group text-left cursor-pointer"
+            title="Click to visit Pablo Arcade Hub"
           >
-            <Lightbulb className="w-4 h-4 text-amber-400" />
+            <div className="relative w-9 h-9 rounded-xl overflow-hidden border border-cyan-400 shadow-md shadow-cyan-500/20 group-hover:scale-105 transition-transform">
+              <img
+                src={pabloMascotImg}
+                alt="Pablo Mascot"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div>
+              <div className="text-base sm:text-lg font-black tracking-tight text-white font-display group-hover:text-cyan-300 transition-colors">
+                Haris Game Center
+              </div>
+              <div className="text-[10px] font-mono text-cyan-400 -mt-1 hidden sm:block">
+                Powered by Pablo the Penguin · 0% Lag
+              </div>
+            </div>
+          </button>
+        </div>
+
+        {/* Center Utilities / Pablo Hub button */}
+        <div className="hidden lg:flex items-center gap-2">
+          {/* Rate 5 Stars Button */}
+          <button
+            onClick={onOpenRatingModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 hover:text-amber-200 transition-all text-xs font-bold cursor-pointer"
+            title="Rate Haris Game Center out of 5 stars"
+          >
+            <div className="flex items-center gap-0.5 text-amber-400">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <Star key={s} className="w-3 h-3 fill-amber-400" />
+              ))}
+            </div>
+            <span className="font-mono">4.9/5</span>
+            <span className="text-[10px] text-amber-200/80 font-normal">Rate</span>
+          </button>
+
+          {/* Game Recommendations button */}
+          <button
+            onClick={onOpenRecommendModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/30 text-cyan-300 hover:text-white transition-all text-xs font-bold cursor-pointer"
+            title="Recommend a game or request additions"
+          >
+            <Lightbulb className="w-3.5 h-3.5 text-cyan-400" />
             <span>Recommend Game</span>
           </button>
-          <button 
-            onClick={onOpenRatingModal}
-            className="hover:text-amber-300 transition-colors whitespace-nowrap flex items-center gap-1.5 text-slate-300 hover:text-white cursor-pointer"
-          >
-            <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-            <span>Rate Website</span>
-          </button>
-          <button 
-            onClick={onOpenAddModal}
-            className="hover:text-cyan-400 transition-colors whitespace-nowrap text-slate-400 hover:text-white cursor-pointer"
-          >
-            + Register Game
-          </button>
-        </nav>
 
-        {/* Action & utility */}
+          {/* Pablo Hub shortcut button */}
+          <button
+            onClick={onOpenPabloHub}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-950/80 to-blue-950/80 border border-cyan-500/40 text-cyan-300 hover:text-white hover:border-cyan-400 transition-all text-xs font-bold shadow-sm shadow-cyan-950/40 cursor-pointer"
+          >
+            <span className="text-sm">🐧</span>
+            <span>Pablo Hub</span>
+            <span className="px-1.5 py-0.5 rounded bg-cyan-500/20 text-[10px] text-cyan-300 font-mono">
+              Tips & Pet
+            </span>
+          </button>
+
+          {/* Teacher Panic / Stealth Button */}
+          <button
+            onClick={onTriggerStealth}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 text-xs font-semibold text-slate-300 hover:text-amber-300 transition-colors cursor-pointer"
+            title="Instant classroom disguise (Hotkey: ] or Esc)"
+          >
+            <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+            <span>Panic</span>
+          </button>
+
+          {/* Snow toggle */}
+          <button
+            onClick={onToggleSnow}
+            className={`p-2 rounded-xl border transition-colors cursor-pointer ${
+              snowEnabled
+                ? 'bg-cyan-500/15 border-cyan-400 text-cyan-300'
+                : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:text-white'
+            }`}
+            title={snowEnabled ? 'Disable snowfall particles' : 'Enable snowfall particles'}
+          >
+            <Snowflake className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Right side: Player status & Points */}
         <div className="flex items-center gap-2.5 shrink-0">
-          <button
-            onClick={onOpenRecommendModal}
-            className="hidden sm:inline-flex md:hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 text-xs font-semibold text-amber-300 hover:bg-amber-500/20 transition-colors cursor-pointer"
-            title="Recommend a future game"
-          >
-            <Lightbulb className="w-3.5 h-3.5" />
-            <span>Recommend Game</span>
-          </button>
+          {currentUser && (
+            <div className="flex items-center gap-2">
+              {/* Penguin Points badge */}
+              <div 
+                onClick={onOpenPabloHub}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono font-bold cursor-pointer hover:bg-amber-500/20 transition-colors"
+                title="Your Penguin Points balance. Click to feed Pablo or unlock VIP!"
+              >
+                <Coins className="w-3.5 h-3.5 text-amber-400" />
+                <span>{points} pts</span>
+              </div>
 
-          <button
-            onClick={onOpenRatingModal}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/80 text-xs font-medium text-slate-300 hover:text-amber-400 hover:border-slate-700 transition-colors cursor-pointer"
-            title="Rate your experience on this website"
-          >
-            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-            <span>Rate</span>
-          </button>
+              {/* VIP Status or VIP Upgrade Button */}
+              {isVip ? (
+                <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold font-mono">
+                  <Crown className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                  <span>VIP PASS</span>
+                </div>
+              ) : (
+                <button
+                  onClick={onOpenVipModal}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold text-xs hover:brightness-110 transition-all shadow-sm shadow-amber-500/20 cursor-pointer"
+                >
+                  <Crown className="w-3.5 h-3.5 fill-slate-950" />
+                  <span>Get VIP</span>
+                </button>
+              )}
 
-          <a
-            href={GAME_CENTER_REPO}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs transition-colors whitespace-nowrap shrink-0 shadow-sm shadow-cyan-500/20"
-          >
-            <Github className="w-3.5 h-3.5 text-slate-950" />
-            <span className="hidden sm:inline">GitHub Project</span>
-            <span className="sm:hidden">Repo</span>
-          </a>
+              {/* Player Tag & Sign Out */}
+              <div className="flex items-center gap-1.5 pl-1">
+                <span className="text-lg p-1 bg-slate-900 rounded-lg border border-slate-800" title={`Signed in as ${currentUser.username}`}>
+                  {currentUser.avatar || '🐧'}
+                </span>
+                <button
+                  onClick={onSignOut}
+                  className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
+                  title="Sign out or switch gamer tag"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
 
-          {/* Mobile hamburger toggle */}
+          {/* Mobile hamburger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-            aria-label="Toggle navigation menu"
+            className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
+
       </div>
 
-      {/* Mobile dropdown menu */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#070d1f] border-b border-slate-800 px-4 pt-3 pb-5 space-y-2">
-          <a
-            href="#games"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg"
-          >
-            Browse Categories &amp; Games
-          </a>
+        <div className="md:hidden border-t border-slate-800 bg-[#070e24] px-4 py-4 space-y-3">
           <button
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onOpenRecommendModal();
-            }}
-            className="w-full text-left px-3 py-2 text-sm font-medium text-amber-300 hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer"
+            onClick={() => { onOpenPabloHub(); setMobileMenuOpen(false); }}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 text-xs font-bold"
           >
-            <Lightbulb className="w-4 h-4 text-amber-400" />
-            <span>Recommend a Future Game</span>
+            <span>🐧 Pablo Arcade Hub (Tips & Pet)</span>
+            <span>Open →</span>
           </button>
+
           <button
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onOpenRatingModal();
-            }}
-            className="w-full text-left px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 rounded-lg flex items-center gap-2 cursor-pointer"
+            onClick={() => { onTriggerStealth(); setMobileMenuOpen(false); }}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-amber-300 text-xs font-semibold"
           >
-            <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-            <span>Rate Experience (5 Stars)</span>
+            <span>🛡️ Stealth Panic Disguise</span>
+            <span>Activate</span>
           </button>
-          <button
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onOpenAddModal();
-            }}
-            className="w-full text-left px-3 py-2 text-sm font-medium text-cyan-300 hover:bg-slate-800 rounded-lg cursor-pointer"
-          >
-            + Register New Game
-          </button>
-          <button
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onReplayIntro();
-            }}
-            className="w-full text-left px-3 py-2 text-xs text-slate-400 hover:text-white cursor-pointer"
-          >
-            Replay Opening Intro
-          </button>
+
+          <div className="flex gap-2 pt-2 border-t border-slate-800">
+            <button
+              onClick={() => { onOpenRecommendModal(); setMobileMenuOpen(false); }}
+              className="flex-1 py-2 text-xs font-semibold rounded-xl bg-slate-900 text-slate-300"
+            >
+              Recommend
+            </button>
+            <button
+              onClick={() => { onOpenRatingModal(); setMobileMenuOpen(false); }}
+              className="flex-1 py-2 text-xs font-semibold rounded-xl bg-slate-900 text-amber-300"
+            >
+              Rate Site
+            </button>
+            <button
+              onClick={() => { onToggleSnow(); setMobileMenuOpen(false); }}
+              className="px-3 py-2 text-xs font-semibold rounded-xl bg-slate-900 text-cyan-300"
+            >
+              ❄️ Snow
+            </button>
+          </div>
         </div>
       )}
     </header>

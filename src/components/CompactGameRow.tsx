@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Play, Github, ExternalLink, Heart, Terminal, Sparkles, Globe, Tv } from 'lucide-react';
+import { Play, Github, ExternalLink, Heart, Terminal, Sparkles, Globe, Tv, Star, Flame, Crown } from 'lucide-react';
 import { Game } from '../data/games';
 
 interface CompactGameRowProps {
@@ -8,9 +8,17 @@ interface CompactGameRowProps {
   onPreviewAd?: (game: Game) => void;
   isFavorite: boolean;
   onToggleFavorite: (gameId: string) => void;
+  onOpenRatingModal?: (game: Game) => void;
 }
 
-export function CompactGameRow({ game, onPlayModal, onPreviewAd, isFavorite, onToggleFavorite }: CompactGameRowProps) {
+export function CompactGameRow({ 
+  game, 
+  onPlayModal, 
+  onPreviewAd, 
+  isFavorite, 
+  onToggleFavorite,
+  onOpenRatingModal 
+}: CompactGameRowProps) {
   const [imgError, setImgError] = useState(false);
 
   return (
@@ -89,6 +97,41 @@ export function CompactGameRow({ game, onPlayModal, onPreviewAd, isFavorite, onT
           <p className="text-xs text-slate-400 truncate max-w-xl font-normal">
             {game.tagline}
           </p>
+
+          {/* 5-Star Rating and Plays Stats */}
+          <div className="flex items-center gap-3 pt-1 text-xs">
+            <button
+              onClick={() => onOpenRatingModal && onOpenRatingModal(game)}
+              className="flex items-center gap-1 text-amber-300 hover:text-amber-200 transition-colors cursor-pointer group"
+              title="Rate this game out of 5 stars"
+            >
+              <div className="flex items-center gap-0.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`w-3 h-3 ${
+                      star <= Math.round(game.rating)
+                        ? 'fill-amber-400 text-amber-400'
+                        : 'fill-slate-800 text-slate-700'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="font-bold font-mono text-[11px] text-amber-300">
+                {game.rating.toFixed(1)}/5
+              </span>
+              <span className="text-[10px] text-slate-400 group-hover:underline">
+                ({game.ratingCount.toLocaleString()})
+              </span>
+            </button>
+
+            <span className="text-slate-600">·</span>
+
+            <div className="flex items-center gap-1 text-cyan-300 font-mono text-[11px]">
+              <Flame className="w-3 h-3 text-orange-400 fill-orange-400" />
+              <span>{(game.playCount / 1000).toFixed(0)}k plays</span>
+            </div>
+          </div>
 
           {/* Controls hint */}
           {game.controls.length > 0 && (

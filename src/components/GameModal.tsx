@@ -1,16 +1,39 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Maximize2, Minimize2, RotateCcw, ExternalLink, Github, Terminal, Globe, AlertCircle } from 'lucide-react';
-import { Game } from '../data/games';
+import { 
+  X, 
+  Maximize2, 
+  Minimize2, 
+  RotateCcw, 
+  ExternalLink, 
+  Zap, 
+  Coins, 
+  Sparkles, 
+  ShieldCheck, 
+  AlertCircle 
+} from 'lucide-react';
+import { Game } from '../types';
 
 interface GameModalProps {
   game: Game | null;
   onClose: () => void;
+  onGamePlayed?: (game: Game) => void;
+  allGames?: Game[];
+  onSelectGame?: (game: Game) => void;
 }
 
-export function GameModal({ game, onClose }: GameModalProps) {
+export function GameModal({ game, onClose, onGamePlayed, allGames, onSelectGame }: GameModalProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
+  const [useBuiltInEngine, setUseBuiltInEngine] = useState(false);
+  const [hasAwardedPoints, setHasAwardedPoints] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (game && !hasAwardedPoints && onGamePlayed) {
+      onGamePlayed(game);
+      setHasAwardedPoints(true);
+    }
+  }, [game, hasAwardedPoints, onGamePlayed]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -45,36 +68,53 @@ export function GameModal({ game, onClose }: GameModalProps) {
     setIframeKey((prev) => prev + 1);
   };
 
-  const iframeSrc = game.iframeUrl || game.playUrl;
+  // Determine source
+  const hasBuiltIn = !!game.builtInHtml;
+  const isUsingBuiltIn = useBuiltInEngine || (hasBuiltIn && !game.isExternal);
+  const directLink = game.playUrl;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/85 backdrop-blur-md">
       <div
         ref={containerRef}
-        className="relative w-full max-w-5xl h-[92vh] max-h-[850px] bg-[#050916] rounded-2xl border border-slate-800 flex flex-col overflow-hidden shadow-2xl shadow-cyan-950/40"
+        className="relative w-full max-w-5xl h-[92vh] max-h-[850px] bg-[#050916] rounded-2xl border border-cyan-500/30 flex flex-col overflow-hidden shadow-2xl shadow-cyan-950/50"
       >
         {/* Modal Top Bar */}
-        <div className="px-4 py-3 bg-[#081024] border-b border-slate-800 flex items-center justify-between gap-4 shrink-0">
+        <div className="px-4 py-3 bg-[#081024] border-b border-slate-800 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
+            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
             <h2 className="text-sm sm:text-base font-bold text-white truncate font-display">
               {game.title}
             </h2>
             <span className="hidden sm:inline text-xs text-slate-400 font-mono">
               · {game.genre}
             </span>
-            {game.isExternal && (
-              <span className="hidden sm:inline-block text-[10px] font-mono text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded">
-                External Iframe Game
-              </span>
-            )}
+            <span className="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded">
+              <Coins className="w-3 h-3 text-amber-400" /> +25 Pts Earned!
+            </span>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            {/* Built-in engine fallback toggle */}
+            {hasBuiltIn && (
+              <button
+                onClick={() => setUseBuiltInEngine(!useBuiltInEngine)}
+                className={`hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+                  isUsingBuiltIn
+                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+                    : 'bg-slate-900 text-slate-400 border-slate-700 hover:text-white'
+                }`}
+                title="Toggle 0% lag built-in engine"
+              >
+                <Zap className="w-3.5 h-3.5 text-cyan-400" />
+                <span>{isUsingBuiltIn ? 'Built-In (0% Lag)' : 'Switch Engine'}</span>
+              </button>
+            )}
+
             {/* Reload button */}
             <button
               onClick={reloadGame}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
               title="Restart session"
             >
               <RotateCcw className="w-4 h-4" />
@@ -83,125 +123,106 @@ export function GameModal({ game, onClose }: GameModalProps) {
             {/* Fullscreen toggle */}
             <button
               onClick={toggleFullscreen}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
               title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
             >
               {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
 
-            {/* Launch in new tab */}
+            {/* Direct launch link that safely navigates without 404 */}
             <a
-              href={game.playUrl}
+              href={directLink}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm"
               title="Open full page in dedicated tab"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Launch Fullscreen Tab</span>
-              <span className="sm:hidden">Open</span>
+              <span className="hidden sm:inline">Launch Tab</span>
             </a>
 
-            {/* View Repo or External Source */}
-            {game.isExternal ? (
-              <a
-                href={game.playUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                title="View original host site"
-              >
-                <Globe className="w-4 h-4" />
-              </a>
-            ) : (
-              <a
-                href={game.repoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                title="View repository on GitHub"
-              >
-                <Github className="w-4 h-4" />
-              </a>
-            )}
-
-            {/* Close modal */}
+            {/* Close button */}
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
-              title="Close player"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              title="Close game modal"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* External Game helper notice if external */}
-        {game.isExternal && (
-          <div className="bg-blue-950/40 border-b border-blue-900/40 px-4 py-2 flex items-center justify-between text-xs text-slate-300">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-              <span className="text-[11px] sm:text-xs">
-                Hosted via external iframe. If your browser blocks embedded Google Sites view, click <strong className="text-white">Launch Fullscreen Tab</strong> above.
-              </span>
-            </div>
-            <a
-              href={game.playUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-1 text-[11px] text-cyan-400 hover:underline font-medium shrink-0 ml-2"
-            >
-              <span>Direct Link</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
-          </div>
-        )}
-
-        {/* Embedded Game Iframe Viewport */}
-        <div className="flex-1 w-full bg-black relative flex items-center justify-center overflow-hidden">
-          {iframeSrc ? (
+        {/* Embedded Game Execution Area */}
+        <div className="flex-1 bg-black relative overflow-hidden flex items-center justify-center">
+          {isUsingBuiltIn && game.builtInHtml ? (
             <iframe
-              key={iframeKey}
-              src={iframeSrc}
-              title={game.title}
+              key={`builtin-${iframeKey}`}
+              srcDoc={game.builtInHtml}
+              title={`${game.title} Built-in Engine`}
               className="w-full h-full border-0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
+              sandbox="allow-scripts allow-same-origin allow-pointer-lock"
             />
           ) : (
-            <div className="text-center p-8 text-slate-400">
-              <p>This game is currently in active development.</p>
-              <a
-                href={game.repoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 inline-block text-cyan-400 hover:underline text-xs"
-              >
-                Track repository progress on GitHub
-              </a>
-            </div>
+            <iframe
+              key={`external-${iframeKey}`}
+              src={game.iframeUrl || game.playUrl}
+              title={game.title}
+              className="w-full h-full border-0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock"
+            />
           )}
         </div>
 
-        {/* Modal Bottom Controls / Shortcuts strip */}
-        <div className="px-4 py-2 bg-[#070d1e] border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400 shrink-0">
-          <div className="flex items-center gap-2 overflow-x-auto">
-            <span className="text-[11px] font-mono text-cyan-400 font-semibold flex items-center gap-1 shrink-0">
-              <Terminal className="w-3 h-3" /> CONTROLS:
+        {/* Recommended Games Quick Switcher */}
+        {allGames && allGames.length > 0 && (
+          <div className="px-3 sm:px-4 py-2 bg-[#060c1d] border-t border-slate-800/80 flex items-center justify-between gap-3 shrink-0 overflow-x-auto">
+            <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-amber-400 shrink-0">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>Recommended Games:</span>
+            </div>
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-0.5">
+              {allGames
+                .filter((g) => g.id !== game.id)
+                .slice(0, 4)
+                .map((rec) => (
+                  <button
+                    key={rec.id}
+                    onClick={() => {
+                      if (onSelectGame) onSelectGame(rec);
+                    }}
+                    className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 text-left shrink-0 transition-all cursor-pointer group"
+                    title={`Switch to recommended game: ${rec.title}`}
+                  >
+                    <img
+                      src={rec.thumbnailUrl}
+                      alt={rec.title}
+                      className="w-5 h-5 rounded-md object-cover"
+                    />
+                    <span className="text-xs font-semibold text-slate-200 group-hover:text-cyan-300 truncate max-w-[110px]">
+                      {rec.title}
+                    </span>
+                    <span className="text-[10px] font-mono text-amber-400">★ {rec.rating.toFixed(1)}</span>
+                  </button>
+                ))}
+            </div>
+          </div>
+        )}
+
+        {/* Footer info bar */}
+        <div className="px-4 py-2 bg-[#081024] border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 shrink-0">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1 text-emerald-400 font-mono text-[11px]">
+              <ShieldCheck className="w-3.5 h-3.5" /> 100% Unblocked
             </span>
-            {game.controls.map((ctrl, i) => (
-              <span key={i} className="shrink-0 text-slate-300">
-                <kbd className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 rounded text-[10px] font-mono text-cyan-300">
-                  {ctrl.key}
-                </kbd>{' '}
-                {ctrl.action}
-                {i < game.controls.length - 1 && <span className="ml-2 text-slate-600">·</span>}
-              </span>
-            ))}
+            <span className="hidden sm:inline text-slate-500">·</span>
+            <span className="hidden sm:inline text-[11px]">
+              Controls: {game.controls.map((c) => `${c.key} (${c.action})`).join(' | ')}
+            </span>
           </div>
 
-          <div className="text-[11px] text-slate-400 shrink-0">
-            Esc to exit · {game.isExternal ? 'External Iframe Integration' : 'Powered by GitHub Pages'}
+          <div className="text-[11px] font-mono text-cyan-300">
+            Haris Game Center · Pablo Verified
           </div>
         </div>
       </div>

@@ -15,61 +15,79 @@ import { GameHypeAdModal } from './components/GameHypeAdModal';
 import { RatingModal } from './components/RatingModal';
 import { RecommendGameModal } from './components/RecommendGameModal';
 import { DeveloperHub } from './components/DeveloperHub';
+import { CommunityRecommendationsSection } from './components/CommunityRecommendationsSection';
 import { Footer } from './components/Footer';
 import { IntroScreen } from './components/IntroScreen';
 import { MusicStreamPlayerModal } from './components/MusicStreamPlayerModal';
+
+import { AuthEntry } from './components/AuthEntry';
+import { PabloMascot } from './components/PabloMascot';
+import { PabloArcadeHubModal } from './components/PabloArcadeHubModal';
+import { VipLockModal } from './components/VipLockModal';
+import { DisguiseOverlay } from './components/DisguiseOverlay';
+import { SnowfallEffect } from './components/SnowfallEffect';
+
 import { INITIAL_GAMES, Game, UNIVERSAL_CATEGORIES } from './data/games';
+import { UserAccount } from './types';
+import { getActiveUser, setActiveUser, awardPenguinPoints } from './utils/auth';
+
 import { 
   Gamepad2, 
   Plus, 
   Sparkles, 
-  SlidersHorizontal, 
   Car, 
   Laugh, 
-  Heart, 
-  Clock, 
   Flame, 
   Cloud, 
   BrainCircuit, 
-  Layers,
   ArrowRight,
   Star,
   Lightbulb,
-  Tv,
-  Headphones
+  Headphones,
+  ShieldCheck,
+  Zap,
+  Crown,
+  Trophy
 } from 'lucide-react';
 
 export default function App() {
-  const [showIntro, setShowIntro] = useState(true);
+  // Player Profile Auth Gate
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => getActiveUser());
+  const [showIntro, setShowIntro] = useState(false);
+
+  // Modals state
+  const [isPabloHubOpen, setIsPabloHubOpen] = useState(false);
+  const [isVipModalOpen, setIsVipModalOpen] = useState(false);
+  const [targetVipGame, setTargetVipGame] = useState<Game | null>(null);
+  const [isStealthActive, setIsStealthActive] = useState(false);
+  const [snowEnabled, setSnowEnabled] = useState(true);
+
   const [games, setGames] = useState<Game[]>(() => {
     try {
       const saved = localStorage.getItem('haris_games');
       if (saved) {
-        const parsed = JSON.parse(saved);
-        // Ensure initial games are always merged and up to date, and removed unwanted games
+        const parsed: Game[] = JSON.parse(saved);
         const initialIds = new Set(INITIAL_GAMES.map(g => g.id));
         const customGames = parsed.filter(
-          (g: Game) => !initialIds.has(g.id) && g.id !== 'drive-u' && g.id !== 'cyber-runner-dx'
+          (g) => !initialIds.has(g.id) && g.id !== 'drive-u' && g.id !== 'cyber-runner-dx'
         );
         return [...INITIAL_GAMES, ...customGames];
       }
-    } catch {
-      // Fallback
-    }
+    } catch {}
     return INITIAL_GAMES;
   });
 
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [adGame, setAdGame] = useState<Game | null>(null);
   const [isAdModalOpen, setIsAdModalOpen] = useState(false);
+  const [ratingTargetGame, setRatingTargetGame] = useState<Game | null>(null);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [isRecommendModalOpen, setIsRecommendModalOpen] = useState(false);
   const [isMusicStreamModalOpen, setIsMusicStreamModalOpen] = useState(false);
 
   const [musicStreamUrl, setMusicStreamUrl] = useState<string>(() => {
     try {
-      const saved = localStorage.getItem('haris_music_stream_url');
-      return saved || 'https://is.gd/musicstream';
+      return localStorage.getItem('haris_music_stream_url') || 'https://is.gd/musicstream';
     } catch {
       return 'https://is.gd/musicstream';
     }
@@ -88,25 +106,27 @@ export default function App() {
   const [sortOption, setSortOption] = useState<SortOption>('featured');
   const [viewMode, setViewMode] = useState<ViewMode>('shelves');
 
-  const [userRating, setUserRating] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('haris_user_rating');
-      return saved ? parseInt(saved, 10) : 5;
-    } catch {
-      return 5;
-    }
-  });
-
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('haris_favorites');
-      return saved ? JSON.parse(saved) : ['nitro-league', 'flappy-bird-arcade', 'meme-mania'];
+      return saved ? JSON.parse(saved) : ['escape-road', 'nitro-league', 'flappy-bird-arcade'];
     } catch {
-      return ['nitro-league', 'flappy-bird-arcade', 'meme-mania'];
+      return ['escape-road', 'nitro-league', 'flappy-bird-arcade'];
     }
   });
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  // Keyboard shortcut for Panic Stealth Disguise (`]` or `Escape`)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === ']') {
+        setIsStealthActive(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Sync favorites
   useEffect(() => {
@@ -114,13 +134,6 @@ export default function App() {
       localStorage.setItem('haris_favorites', JSON.stringify(favorites));
     } catch {}
   }, [favorites]);
-
-  // Sync custom games
-  useEffect(() => {
-    try {
-      localStorage.setItem('haris_games', JSON.stringify(games));
-    } catch {}
-  }, [games]);
 
   const toggleFavorite = (gameId: string) => {
     setFavorites(prev => 
@@ -137,12 +150,65 @@ export default function App() {
     setIsAdModalOpen(true);
   };
 
+  const handleSaveRating = (stars: number, _review: string, gameId?: string) => {
+    if (gameId) {
+      setGames(prev => {
+        const updated = prev.map(g => {
+          if (g.id === gameId) {
+            const newCount = g.ratingCount + 1;
+            const newRating = Math.round(((g.rating * g.ratingCount + stars) / newCount) * 10) / 10;
+            return { ...g, rating: newRating, ratingCount: newCount };
+          }
+          return g;
+        });
+        try {
+          localStorage.setItem('haris_games', JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+    }
+  };
+
+  const handleSignOut = () => {
+    setActiveUser(null);
+    setCurrentUser(null);
+  };
+
+  // Game execution handler
+  const handlePlayGame = (game: Game) => {
+    // Check VIP requirement
+    if (game.isVipExclusive && !currentUser?.isVip) {
+      setTargetVipGame(game);
+      setIsVipModalOpen(true);
+      return;
+    }
+
+    if (game.id === 'music-stream') {
+      setIsMusicStreamModalOpen(true);
+      return;
+    }
+
+    setSelectedGame(game);
+  };
+
+  // Award points on game play
+  const handleGamePlayedSession = (game: Game) => {
+    const updated = awardPenguinPoints(25);
+    if (updated) {
+      setCurrentUser({ ...updated });
+    }
+    // Increment local play count
+    setGames(prev => prev.map(g => g.id === game.id ? { ...g, playCount: g.playCount + 1 } : g));
+  };
+
   // Filter and sort games
   const filteredAndSortedGames = useMemo(() => {
     const result = games.filter(game => {
       // Category filter
       if (activeCategory !== 'all') {
-        if (activeCategory === 'favorites') {
+        if (activeCategory === 'recommended') {
+          if (!game.isFeatured && !game.isPopular && game.rating < 4.8) return false;
+        } else if (activeCategory === 'favorites') {
           if (!favorites.includes(game.id)) return false;
         } else if (activeCategory === 'upcoming') {
           if (game.status !== 'upcoming') return false;
@@ -177,124 +243,119 @@ export default function App() {
       // 'featured'
       if (a.isFeatured && !b.isFeatured) return -1;
       if (!a.isFeatured && b.isFeatured) return 1;
-      return a.title.localeCompare(b.title);
+      return b.playCount - a.playCount;
     });
   }, [games, activeCategory, searchQuery, favorites, sortOption]);
 
-  const handlePlayGame = (game: Game) => {
-    if (game.id === 'music-stream') {
-      setIsMusicStreamModalOpen(true);
-    } else if (game.directPlayOnly) {
-      window.open(game.playUrl, '_blank', 'noopener,noreferrer');
-    } else {
-      setSelectedGame(game);
-    }
-  };
-
-  const getCategoryIcon = (id: CategoryFilter) => {
+  const getCategoryIcon = (id: string) => {
     switch (id) {
+      case 'recommended': return Sparkles;
       case 'racing': return Car;
       case 'cloud': return Cloud;
       case 'arcade': return Gamepad2;
       case 'action': return Flame;
       case 'casual': return Laugh;
       case 'puzzle': return BrainCircuit;
+      case 'sports': return Trophy;
       case 'other': return Headphones;
-      case 'favorites': return Heart;
-      case 'upcoming': return Clock;
-      default: return SlidersHorizontal;
+      default: return Gamepad2;
     }
   };
 
-  const quickFilterPills: { id: CategoryFilter; label: string; icon: typeof Gamepad2 }[] = [
-    { id: 'all', label: 'All Categories', icon: SlidersHorizontal },
-    { id: 'racing', label: 'Racing & Driving', icon: Car },
-    { id: 'cloud', label: 'Cloud Streaming', icon: Cloud },
-    { id: 'arcade', label: 'Arcade & Retro', icon: Gamepad2 },
-    { id: 'action', label: 'Action & Platformer', icon: Flame },
-    { id: 'casual', label: 'Casual & Viral', icon: Laugh },
-    { id: 'puzzle', label: 'Puzzle & Strategy', icon: BrainCircuit },
-    { id: 'other', label: 'Other', icon: Headphones },
-    { id: 'favorites', label: 'Favorites', icon: Heart }
-  ];
+  // Gated View: If user is not signed in, show Auth Gate
+  if (!currentUser) {
+    return <AuthEntry onLoginSuccess={(u) => setCurrentUser(u)} />;
+  }
 
   return (
-    <div className="min-h-screen bg-[#040814] text-slate-100 font-sans selection:bg-cyan-500 selection:text-white flex flex-col relative cyber-grid">
+    <div className="min-h-screen bg-[#030712] text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-slate-950 relative">
       
-      {/* Initial Opening Transition Effect (Minimal & Universal, No Game Mentions) */}
-      {showIntro && (
-        <IntroScreen onComplete={() => setShowIntro(false)} />
-      )}
+      {/* Arctic Snowfall Effect */}
+      <SnowfallEffect enabled={snowEnabled} />
 
-      {/* Primary Top Bar */}
-      <Navbar
-        onReplayIntro={() => setShowIntro(true)}
-        onOpenAddModal={() => setIsAddModalOpen(true)}
-        onOpenRatingModal={() => setIsRatingModalOpen(true)}
+      {/* Classroom Stealth Disguise Overlay (Panic Mask) */}
+      <DisguiseOverlay
+        isActive={isStealthActive}
+        disguiseType="google_docs"
+        onExit={() => setIsStealthActive(false)}
+      />
+
+      {/* Sticky Main Navigation */}
+      <Navbar 
+        currentUser={currentUser}
+        onOpenPabloHub={() => setIsPabloHubOpen(true)}
+        onTriggerStealth={() => setIsStealthActive(true)}
+        snowEnabled={snowEnabled}
+        onToggleSnow={() => setSnowEnabled(!snowEnabled)}
+        onSignOut={handleSignOut}
         onOpenRecommendModal={() => setIsRecommendModalOpen(true)}
+        onOpenRatingModal={() => setIsRatingModalOpen(true)}
+        onOpenVipModal={() => {
+          setTargetVipGame(games.find(g => g.isVipExclusive) || games[0]);
+          setIsVipModalOpen(true);
+        }}
       />
 
       <main className="flex-1">
-        {/* Universal Hero Section */}
-        <HeroSection
+        {/* Hero Section */}
+        <HeroSection 
           games={games}
-          onPlayGame={handlePlayGame}
+          onOpenRecommendModal={() => setIsRecommendModalOpen(true)}
+          onOpenPabloHub={() => setIsPabloHubOpen(true)}
+          onOpenRatingModal={() => setIsRatingModalOpen(true)}
         />
 
-        {/* Featured Game Hype Ads Spotlight Strip */}
-        <section className="border-b border-slate-800/80 bg-[#060c1d]/60 py-3 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2 text-slate-300">
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-              </span>
-              <span className="font-mono uppercase tracking-wider text-amber-300 font-bold">
-                Featured Game Hype Previews:
-              </span>
-              <span className="hidden md:inline text-slate-400">
-                Watch short preview ads highlighting how fun each game is before playing!
-              </span>
+        {/* Pablo Unblocked Announcement Banner */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 mb-8 relative z-20">
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#091738] via-[#0d2254] to-[#091738] border border-cyan-500/30 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <span className="text-3xl p-1.5 bg-cyan-950/80 rounded-xl border border-cyan-500/40">🐧</span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="text-sm font-bold text-white font-display">
+                    Pablo's Unblocked Guarantee: 0% Lag & 60 FPS
+                  </h4>
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                    <ShieldCheck className="w-3 h-3" /> 100% UNBLOCKED
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  Play games to earn +25 Penguin Points per session! Hit 500 points to unlock VIP access forever.
+                </p>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1 sm:pb-0 scrollbar-none">
-              {games.slice(0, 4).map((g) => (
-                <button
-                  key={g.id}
-                  onClick={() => handleOpenAd(g)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/40 text-[11px] text-slate-300 hover:text-amber-300 transition-colors shrink-0 cursor-pointer"
-                >
-                  <Tv className="w-3 h-3 text-amber-400" />
-                  <span className="truncate max-w-[120px]">{g.title} Ad</span>
-                </button>
-              ))}
+            <div className="flex items-center gap-2.5 shrink-0">
+              <button
+                onClick={() => setIsPabloHubOpen(true)}
+                className="px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm shadow-cyan-500/20 cursor-pointer"
+              >
+                Open Pablo Hub
+              </button>
             </div>
           </div>
         </section>
 
-        {/* Clean & Organized Game Catalog Section */}
-        <section id="games" className="py-10 sm:py-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Main Catalog View */}
+        <section id="games" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
           
-          {/* Section Kicker and Title */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-cyan-400 mb-1.5">
-                <Layers className="w-4 h-4" />
-                <span>Universal Game Categories</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-display">
-                Browse by Category
-              </h2>
-              <p className="mt-1 text-xs sm:text-sm text-slate-300 max-w-xl">
-                Organized library for rapid navigation. Select a category below or search across all titles.
-              </p>
-            </div>
-
-            {/* Quick Category Segmented Buttons */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-              {quickFilterPills.map((pill) => {
-                const Icon = pill.icon;
+          {/* Top Quick Category Pills */}
+          <div className="border-b border-slate-800/80 pb-3">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+              {[
+                { id: 'all' as CategoryFilter, label: 'All Catalog' },
+                { id: 'recommended' as CategoryFilter, label: '⭐ Recommended (Top Picks)' },
+                { id: 'racing' as CategoryFilter, label: 'Racing & Driving' },
+                { id: 'cloud' as CategoryFilter, label: 'Cloud Gaming' },
+                { id: 'arcade' as CategoryFilter, label: 'Arcade Classics' },
+                { id: 'action' as CategoryFilter, label: 'Action & Sports' },
+                { id: 'casual' as CategoryFilter, label: 'Casual & Meme' },
+                { id: 'puzzle' as CategoryFilter, label: 'Puzzle & Strategy' },
+                { id: 'other' as CategoryFilter, label: 'Other Websites' },
+                { id: 'favorites' as CategoryFilter, label: `Favorites (${favorites.length})` }
+              ].map((pill) => {
                 const isSelected = activeCategory === pill.id;
+                const Icon = getCategoryIcon(pill.id);
                 return (
                   <button
                     key={pill.id}
@@ -313,7 +374,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Unified Filter, Dropdown, Search, and View Mode Toolbar */}
+          {/* Filter, Search & View Controls */}
           <GameFilterControls
             games={games}
             favoritesCount={favorites.length}
@@ -330,9 +391,88 @@ export default function App() {
 
           {/* Catalog Render Logic */}
           {filteredAndSortedGames.length > 0 ? (
-            /* Mode 1: Category Shelves (Organized by Category) */
             viewMode === 'shelves' && activeCategory === 'all' && !searchQuery.trim() ? (
               <div className="space-y-12">
+                {/* 1. Featured Recommended Games Shelf with + Recommend Tile */}
+                <div className="space-y-4 p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-amber-500/10 via-[#0a1533] to-cyan-500/10 border-2 border-amber-500/40 shadow-xl shadow-amber-500/10">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-500/30 pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                        <Sparkles className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-xl font-black text-white font-display">
+                            Recommended Games
+                          </h3>
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                            PABLO'S 5-STAR PICKS
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-300">
+                          Handpicked top-rated unblocked games with verified 0% lag and certified 60 FPS
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setIsRecommendModalOpen(true)}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer shadow-md shadow-amber-500/20 self-start sm:self-auto"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>+ Recommend a Game</span>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                    {games
+                      .filter((g) => g.isFeatured || g.id === 'slope-cyber-tunnel' || g.id === 'escape-road' || g.id === '1v1-arena-duel')
+                      .slice(0, 3)
+                      .map((game) => (
+                        <GameCard
+                          key={`rec-${game.id}`}
+                          game={game}
+                          onPlayModal={handlePlayGame}
+                          onPreviewAd={handleOpenAd}
+                          isFavorite={favorites.includes(game.id)}
+                          onToggleFavorite={toggleFavorite}
+                          onOpenRatingModal={() => {
+                            setRatingTargetGame(game);
+                            setIsRatingModalOpen(true);
+                          }}
+                          onOpenVipModal={(g) => {
+                            setTargetVipGame(g);
+                            setIsVipModalOpen(true);
+                          }}
+                          isUserVip={!!currentUser?.isVip}
+                        />
+                      ))}
+
+                    {/* Interactive Recommend a Game Card in Grid */}
+                    <div
+                      onClick={() => setIsRecommendModalOpen(true)}
+                      className="group relative flex flex-col items-center justify-center text-center p-6 rounded-2xl bg-[#091530]/90 border-2 border-dashed border-amber-500/40 hover:border-amber-400 transition-all duration-300 cursor-pointer shadow-lg hover:scale-[1.02]"
+                    >
+                      <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 mb-2 group-hover:scale-110 transition-transform">
+                        <Lightbulb className="w-6 h-6" />
+                      </div>
+                      <div className="text-[10px] font-mono font-bold text-amber-300 uppercase tracking-wider mb-1">
+                        GAME RECOMMENDATIONS
+                      </div>
+                      <h4 className="text-base font-bold text-white mb-1 font-display">
+                        Recommend a Game
+                      </h4>
+                      <p className="text-xs text-slate-400 mb-3 max-w-[200px] leading-relaxed">
+                        Want an unblocked game added to the center? Send your recommendation to Pablo!
+                      </p>
+                      <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-colors shadow-md shadow-amber-500/25">
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Submit Idea</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
                 {UNIVERSAL_CATEGORIES.map((catMeta) => {
                   const categoryGames = games.filter(g => 
                     g.category === catMeta.id || (catMeta.id === 'casual' && (g.category as string) === 'meme')
@@ -384,35 +524,23 @@ export default function App() {
                             onPreviewAd={handleOpenAd}
                             isFavorite={favorites.includes(game.id)}
                             onToggleFavorite={toggleFavorite}
+                            onOpenRatingModal={() => {
+                              setRatingTargetGame(game);
+                              setIsRatingModalOpen(true);
+                            }}
+                            onOpenVipModal={(g) => {
+                              setTargetVipGame(g);
+                              setIsVipModalOpen(true);
+                            }}
+                            isUserVip={!!currentUser?.isVip}
                           />
                         ))}
                       </div>
                     </div>
                   );
                 })}
-
-                {/* Scalability Slot: Register Game Card */}
-                <div
-                  onClick={() => setIsAddModalOpen(true)}
-                  className="flex items-center justify-between p-5 rounded-2xl border border-dashed border-slate-800 hover:border-cyan-500/60 bg-slate-950/40 hover:bg-slate-900/40 transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-cyan-400">
-                      <Plus className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-white font-display">Register Another Game</h4>
-                      <p className="text-xs text-slate-400">Expand your game center by registering new projects into universal categories.</p>
-                    </div>
-                  </div>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-400">
-                    <span>Add Game</span>
-                    <Sparkles className="w-3.5 h-3.5" />
-                  </span>
-                </div>
               </div>
             ) : viewMode === 'compact' ? (
-              /* Mode 2: Compact Directory List View (Space-Efficient) */
               <div className="space-y-3">
                 {filteredAndSortedGames.map((game) => (
                   <CompactGameRow
@@ -422,20 +550,14 @@ export default function App() {
                     onPreviewAd={handleOpenAd}
                     isFavorite={favorites.includes(game.id)}
                     onToggleFavorite={toggleFavorite}
+                    onOpenRatingModal={() => {
+                      setRatingTargetGame(game);
+                      setIsRatingModalOpen(true);
+                    }}
                   />
                 ))}
-
-                {/* Compact Add Game Row */}
-                <button
-                  onClick={() => setIsAddModalOpen(true)}
-                  className="w-full flex items-center justify-center gap-2 p-3.5 rounded-xl border border-dashed border-slate-800 hover:border-cyan-500/60 bg-slate-950/40 hover:bg-slate-900/40 text-xs font-medium text-slate-400 hover:text-cyan-300 transition-colors cursor-pointer"
-                >
-                  <Plus className="w-4 h-4 text-cyan-400" />
-                  <span>Register a new game into Haris Game Center</span>
-                </button>
               </div>
             ) : (
-              /* Mode 3: Clean Responsive Grid View */
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {filteredAndSortedGames.map((game) => (
                   <GameCard
@@ -445,32 +567,20 @@ export default function App() {
                     onPreviewAd={handleOpenAd}
                     isFavorite={favorites.includes(game.id)}
                     onToggleFavorite={toggleFavorite}
+                    onOpenRatingModal={() => {
+                      setRatingTargetGame(game);
+                      setIsRatingModalOpen(true);
+                    }}
+                    onOpenVipModal={(g) => {
+                      setTargetVipGame(g);
+                      setIsVipModalOpen(true);
+                    }}
+                    isUserVip={!!currentUser?.isVip}
                   />
                 ))}
-
-                {/* Scalability Slot: Add Next Game Card */}
-                <div
-                  onClick={() => setIsAddModalOpen(true)}
-                  className="group flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed border-slate-800 hover:border-cyan-500/60 bg-slate-950/40 hover:bg-slate-900/40 text-center transition-all duration-300 cursor-pointer min-h-[220px]"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-cyan-400 group-hover:scale-110 group-hover:border-cyan-400 transition-all mb-2.5 shadow-lg">
-                    <Plus className="w-5 h-5" />
-                  </div>
-                  <h3 className="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors font-display">
-                    Add Another Game
-                  </h3>
-                  <p className="mt-1 text-xs text-slate-400 max-w-xs leading-relaxed">
-                    Register a new web or cloud game into your hub.
-                  </p>
-                  <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-cyan-400 group-hover:underline">
-                    <span>Register Game</span>
-                    <Sparkles className="w-3 h-3" />
-                  </span>
-                </div>
               </div>
             )
           ) : (
-            /* Clean Empty State */
             <div className="py-14 px-6 text-center rounded-2xl border border-slate-800 bg-[#070e22]">
               <div className="w-12 h-12 mx-auto rounded-xl bg-slate-900 flex items-center justify-center text-slate-400 mb-3 border border-slate-800">
                 <Gamepad2 className="w-6 h-6" />
@@ -490,95 +600,58 @@ export default function App() {
                 >
                   Reset all filters
                 </button>
-                <button
-                  onClick={() => setIsAddModalOpen(true)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-200 text-xs hover:bg-slate-700 transition-colors cursor-pointer"
-                >
-                  Add a new game
-                </button>
               </div>
             </div>
           )}
         </section>
 
-        {/* Community Ratings & Game Recommendations Section */}
-        <section className="py-12 border-t border-slate-800/80 bg-[#050a1a]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#07112c] via-[#091538] to-[#050b1d] border border-cyan-500/25 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
-              
-              <div className="space-y-2 text-center md:text-left">
-                <div className="flex items-center justify-center md:justify-start gap-1.5 text-amber-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-amber-400" />
-                  ))}
-                  <span className="ml-2 font-mono font-bold text-white text-base">4.9 / 5.0</span>
-                  <span className="text-slate-400 text-xs hidden sm:inline">· Verified Player Score</span>
-                </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white font-display">
-                  How is your experience on Haris Game Center?
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
-                  Rate the platform out of 5 stars and share your feedback, or recommend which games you want added next to the game center!
-                </p>
-              </div>
+        {/* Community 5-Star Ratings & Game Recommendations Section */}
+        <CommunityRecommendationsSection
+          onOpenRecommendModal={() => setIsRecommendModalOpen(true)}
+          onOpenRatingModal={() => setIsRatingModalOpen(true)}
+        />
 
-              <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
-                <button
-                  onClick={() => setIsRatingModalOpen(true)}
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-amber-500/20 cursor-pointer"
-                >
-                  <Star className="w-4 h-4 fill-slate-950" />
-                  <span>Rate Website (5 Stars)</span>
-                </button>
-
-                <button
-                  onClick={() => setIsRecommendModalOpen(true)}
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/30 hover:border-cyan-400 text-cyan-300 hover:text-white font-semibold text-xs transition-colors cursor-pointer"
-                >
-                  <Lightbulb className="w-4 h-4 text-cyan-400" />
-                  <span>Recommend Future Games</span>
-                </button>
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        {/* Developer & Repository Hub Section */}
+        {/* Developer Hub Section */}
         <DeveloperHub onOpenAddModal={() => setIsAddModalOpen(true)} />
       </main>
 
-      {/* Floating Experience Rating Dock Button (Bottom Right) */}
-      <aside aria-label="Quick Actions" className="fixed bottom-5 right-5 z-40 flex items-center gap-2">
-        <button
-          onClick={() => setIsRecommendModalOpen(true)}
-          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900/95 hover:bg-slate-800 text-amber-300 border border-amber-500/40 shadow-xl backdrop-blur-md text-xs font-semibold transition-all hover:scale-105 cursor-pointer"
-          title="Recommend a game"
-        >
-          <Lightbulb className="w-4 h-4 text-amber-400" />
-          <span>Recommend Game</span>
-        </button>
-
-        <button
-          onClick={() => setIsRatingModalOpen(true)}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-xs shadow-xl shadow-cyan-500/30 backdrop-blur-md transition-all hover:scale-105 cursor-pointer"
-          title="Rate website experience out of 5 stars"
-        >
-          <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
-          <span>Rate (5 Stars)</span>
-        </button>
-      </aside>
+      {/* Floating Pablo Mascot (Bottom Right) */}
+      <PabloMascot 
+        onOpenHub={() => setIsPabloHubOpen(true)}
+        affectionLevel={currentUser.pabloAffection || 25}
+      />
 
       {/* Quiet Footer */}
       <Footer />
 
-      {/* Interactive In-App Player Modal */}
+      {/* Game Runner Modal */}
       <GameModal
         game={selectedGame}
         onClose={() => setSelectedGame(null)}
+        onGamePlayed={handleGamePlayedSession}
+        allGames={games}
+        onSelectGame={handlePlayGame}
       />
 
-      {/* Pre-Roll Game Hype Preview Ad Modal */}
+      {/* Pablo Arcade Hub Modal */}
+      <PabloArcadeHubModal
+        isOpen={isPabloHubOpen}
+        onClose={() => setIsPabloHubOpen(false)}
+        currentUser={currentUser}
+        onUserUpdated={(u) => setCurrentUser(u)}
+      />
+
+      {/* VIP Access Unlock Modal */}
+      <VipLockModal
+        isOpen={isVipModalOpen}
+        onClose={() => setIsVipModalOpen(false)}
+        game={targetVipGame}
+        currentUser={currentUser}
+        onUserUpdated={(u) => setCurrentUser(u)}
+        onUnlockedPlay={(g) => handlePlayGame(g)}
+      />
+
+      {/* Game Hype Pre-Roll Modal */}
       <GameHypeAdModal
         game={adGame}
         isOpen={isAdModalOpen}
@@ -586,7 +659,7 @@ export default function App() {
         onLaunchGame={handlePlayGame}
       />
 
-      {/* Interactive Music Stream Player & Concept Debug Console */}
+      {/* Music Stream Player Modal */}
       <MusicStreamPlayerModal
         isOpen={isMusicStreamModalOpen}
         onClose={() => setIsMusicStreamModalOpen(false)}
@@ -594,20 +667,24 @@ export default function App() {
         onUpdateConfiguredUrl={handleUpdateMusicStreamUrl}
       />
 
-      {/* 5-Star Website Rating Modal */}
+      {/* Rating Modal */}
       <RatingModal
         isOpen={isRatingModalOpen}
-        onClose={() => setIsRatingModalOpen(false)}
-        onSaveRating={(r) => setUserRating(r)}
+        onClose={() => {
+          setIsRatingModalOpen(false);
+          setRatingTargetGame(null);
+        }}
+        game={ratingTargetGame}
+        onSaveRating={handleSaveRating}
       />
 
-      {/* Recommend Future Game Modal */}
+      {/* Recommend Game Modal */}
       <RecommendGameModal
         isOpen={isRecommendModalOpen}
         onClose={() => setIsRecommendModalOpen(false)}
       />
 
-      {/* Add / Register Future Game Modal */}
+      {/* Add Game Modal */}
       <AddGameModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}

@@ -3,13 +3,16 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Star, X, Check, Heart, Sparkles, MessageSquare } from 'lucide-react';
 import { playArcadeSfx } from '../utils/audio';
 
+import { Game } from '../types';
+
 interface RatingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSaveRating?: (rating: number, review: string) => void;
+  game?: Game | null;
+  onSaveRating?: (rating: number, review: string, gameId?: string) => void;
 }
 
-export function RatingModal({ isOpen, onClose, onSaveRating }: RatingModalProps) {
+export function RatingModal({ isOpen, onClose, game, onSaveRating }: RatingModalProps) {
   const [rating, setRating] = useState<number>(() => {
     try {
       const saved = localStorage.getItem('haris_user_rating');
@@ -71,7 +74,7 @@ export function RatingModal({ isOpen, onClose, onSaveRating }: RatingModalProps)
     playArcadeSfx('launch');
     setIsSubmitted(true);
     if (onSaveRating) {
-      onSaveRating(rating, comment);
+      onSaveRating(rating, comment, game?.id);
     }
     setTimeout(() => {
       onClose();
@@ -96,7 +99,7 @@ export function RatingModal({ isOpen, onClose, onSaveRating }: RatingModalProps)
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-400" />
               <h2 className="text-base sm:text-lg font-bold text-white font-display">
-                Rate Your Experience
+                {game ? `Rate ${game.title}` : 'Rate Your Experience'}
               </h2>
             </div>
             <button
@@ -111,7 +114,9 @@ export function RatingModal({ isOpen, onClose, onSaveRating }: RatingModalProps)
             <form onSubmit={handleSubmit} className="mt-5 space-y-5">
               <div className="text-center space-y-2">
                 <p className="text-xs sm:text-sm text-slate-300">
-                  How would you rate your experience on Haris Game Center?
+                  {game
+                    ? `How many stars would you rate ${game.title}?`
+                    : 'How would you rate your overall experience on Haris Game Center?'}
                 </p>
 
                 {/* 5-Star Interactive Rating Selector */}

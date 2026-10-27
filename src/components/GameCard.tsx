@@ -6,14 +6,18 @@ import {
   Heart, 
   ChevronDown, 
   ChevronUp, 
-  Terminal, 
-  Layers, 
   Globe, 
   Tv, 
   Sparkles,
-  Flame
+  Flame,
+  Star,
+  Lock,
+  Crown,
+  Eye,
+  Zap,
+  Coins
 } from 'lucide-react';
-import { Game } from '../data/games';
+import { Game } from '../types';
 
 interface GameCardProps {
   game: Game;
@@ -21,6 +25,9 @@ interface GameCardProps {
   onPreviewAd: (game: Game) => void;
   isFavorite: boolean;
   onToggleFavorite: (gameId: string) => void;
+  onOpenRatingModal: (game: Game) => void;
+  onOpenVipModal: (game: Game) => void;
+  isUserVip: boolean;
 }
 
 export function GameCard({ 
@@ -28,15 +35,39 @@ export function GameCard({
   onPlayModal, 
   onPreviewAd, 
   isFavorite, 
-  onToggleFavorite 
+  onToggleFavorite,
+  onOpenRatingModal,
+  onOpenVipModal,
+  isUserVip
 }: GameCardProps) {
   const [imgError, setImgError] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
+  const isLocked = game.isVipExclusive && !isUserVip;
+
+  const handleGameLaunch = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    if (isLocked) {
+      onOpenVipModal(game);
+      return;
+    }
+    onPlayModal(game);
+  };
+
+  const formatPlays = (plays: number): string => {
+    if (plays >= 1000000) return `${(plays / 1000000).toFixed(1)}M`;
+    if (plays >= 1000) return `${(plays / 1000).toFixed(1)}k`;
+    return plays.toString();
+  };
+
   return (
     <div
-      id={game.id === 'flappy-bird-arcade' ? 'flappy-bird' : game.id}
-      className="group relative flex flex-col rounded-2xl bg-[#081024] border border-slate-800/90 hover:border-cyan-500/40 transition-all duration-300 overflow-hidden shadow-md shadow-black/50 hover:shadow-cyan-950/20"
+      id={game.id}
+      className={`group relative flex flex-col rounded-2xl bg-[#081024] border transition-all duration-300 overflow-hidden shadow-md shadow-black/50 ${
+        isLocked
+          ? 'border-amber-500/40 hover:border-amber-400 hover:shadow-amber-950/30'
+          : 'border-slate-800/90 hover:border-cyan-500/50 hover:shadow-cyan-950/30'
+      }`}
     >
       {/* Thumbnail Banner Area */}
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-950">
@@ -51,30 +82,42 @@ export function GameCard({
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-500 p-4">
             <span className="text-sm font-semibold text-slate-300">{game.title}</span>
-            <span className="text-xs text-slate-500 mt-1">Arcade Canvas Visual</span>
+            <span className="text-xs text-slate-500 mt-1">Arcade 60FPS Visual</span>
           </div>
         )}
 
         {/* Ambient Gradient Scrim */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#081024] via-[#081024]/20 to-transparent pointer-events-none" />
 
-        {/* Top Floating Actions: Genre & Favorite */}
+        {/* Top Floating Badges: Genre, VIP status & Favorite */}
         <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between z-10">
-          <div className="flex items-center gap-1.5 text-[10px] font-mono tracking-wide text-cyan-300 bg-slate-950/85 backdrop-blur-sm px-2 py-0.5 rounded-md border border-cyan-500/20">
-            <span>{game.genre}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] font-mono tracking-wide text-cyan-300 bg-slate-950/85 backdrop-blur-sm px-2 py-0.5 rounded-md border border-cyan-500/20">
+              {game.genre}
+            </span>
+
+            {game.isVipExclusive && (
+              <span className="flex items-center gap-1 text-[10px] font-mono font-bold tracking-wider text-amber-300 bg-amber-950/90 border border-amber-500/40 px-2 py-0.5 rounded-md shadow-sm">
+                <Crown className="w-3 h-3 text-amber-400" />
+                <span>VIP</span>
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-1.5">
             {/* Quick Preview Ad Button */}
-            <button
-              onClick={() => onPreviewAd(game)}
-              className="p-1.5 rounded-lg backdrop-blur-md bg-slate-950/70 border border-amber-500/30 text-amber-300 hover:text-amber-200 hover:bg-amber-500/20 transition-colors"
-              title="Watch fun preview ad"
-              aria-label="Watch game preview ad"
-            >
-              <Tv className="w-3.5 h-3.5" />
-            </button>
+            {game.hypeAd && (
+              <button
+                onClick={() => onPreviewAd(game)}
+                className="p-1.5 rounded-lg backdrop-blur-md bg-slate-950/70 border border-amber-500/30 text-amber-300 hover:text-amber-200 hover:bg-amber-500/20 transition-colors"
+                title="Watch fun preview ad"
+                aria-label="Watch game preview ad"
+              >
+                <Tv className="w-3.5 h-3.5" />
+              </button>
+            )}
 
+            {/* Favorite button */}
             <button
               onClick={() => onToggleFavorite(game.id)}
               className={`p-1.5 rounded-lg backdrop-blur-md transition-colors ${
@@ -90,130 +133,123 @@ export function GameCard({
           </div>
         </div>
 
-        {/* Play Overlay Button on hover */}
+        {/* Hover Overlay Button */}
         {game.status === 'live' && (
-          <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/55 backdrop-blur-[2px]">
-            <button
-              onClick={() => onPreviewAd(game)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:brightness-110 transition-transform transform active:scale-95 shadow-lg shadow-amber-500/30 cursor-pointer"
-              title="Watch hype ad and play"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Preview Ad</span>
-            </button>
-
-            {game.id === 'music-stream' ? (
+          <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/60 backdrop-blur-[2px]">
+            {isLocked ? (
               <button
-                onClick={() => onPlayModal(game)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:bg-cyan-400 transition-transform transform active:scale-95 shadow-xl shadow-cyan-500/30 cursor-pointer"
+                onClick={() => onOpenVipModal(game)}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black text-xs uppercase tracking-wider hover:brightness-110 transition-transform transform active:scale-95 shadow-xl shadow-amber-500/30 cursor-pointer"
               >
-                <Play className="w-3.5 h-3.5 fill-slate-950" />
-                <span>Stream Music</span>
+                <Lock className="w-4 h-4 fill-slate-950" />
+                <span>Unlock VIP ($5 or 500 Pts)</span>
               </button>
-            ) : game.directPlayOnly ? (
-              <a
-                href={game.playUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:bg-cyan-400 transition-transform transform active:scale-95 shadow-xl shadow-cyan-500/30"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>Play Direct</span>
-              </a>
             ) : (
-              <button
-                onClick={() => onPlayModal(game)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:bg-cyan-400 transition-transform transform active:scale-95 shadow-xl shadow-cyan-500/30 cursor-pointer"
-              >
-                <Play className="w-3.5 h-3.5 fill-slate-950" />
-                <span>Quick Play</span>
-              </button>
+              <>
+                {game.hypeAd && (
+                  <button
+                    onClick={() => onPreviewAd(game)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:brightness-110 transition-transform transform active:scale-95 shadow-lg shadow-amber-500/30 cursor-pointer"
+                    title="Watch hype preview"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Preview</span>
+                  </button>
+                )}
+
+                <button
+                  onClick={handleGameLaunch}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:bg-cyan-400 transition-transform transform active:scale-95 shadow-xl shadow-cyan-500/30 cursor-pointer"
+                >
+                  <Play className="w-3.5 h-3.5 fill-slate-950" />
+                  <span>{game.category === 'other' ? 'Stream Audio' : 'Play Unblocked'}</span>
+                </button>
+              </>
             )}
           </div>
         )}
       </div>
 
-      {/* Streamlined Card Content */}
+      {/* Card Content & Stats */}
       <div className="flex-1 flex flex-col p-4 sm:p-5 space-y-3">
-        {/* Title and Short Hook */}
+        {/* Title and Ratings/Plays row */}
         <div>
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="text-lg font-bold text-white tracking-tight group-hover:text-cyan-400 transition-colors font-display truncate">
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <h3 className="font-bold text-white text-base tracking-tight font-display truncate">
               {game.title}
             </h3>
-            <span className="text-[11px] font-mono text-slate-500 shrink-0">
-              {game.releaseYear}
-            </span>
+            {game.isNew && (
+              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 rounded">
+                NEW
+              </span>
+            )}
           </div>
-          <p className="mt-1 text-xs text-slate-300 line-clamp-2 leading-relaxed">
+
+          <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
             {game.tagline}
           </p>
         </div>
 
-        {/* Optional Collapsible Details / Controls Section */}
+        {/* Real-time 5-Star Rating & Plays Counter Bar */}
+        <div className="flex items-center justify-between text-xs py-2.5 px-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
+          {/* 5-Star Rating Display */}
+          <button
+            onClick={() => onOpenRatingModal(game)}
+            className="flex flex-col items-start gap-0.5 text-amber-300 hover:text-amber-200 transition-colors cursor-pointer group text-left"
+            title="Click to rate this game out of 5 stars"
+          >
+            <div className="flex items-center gap-0.5">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  className={`w-3.5 h-3.5 ${
+                    star <= Math.round(game.rating)
+                      ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.6)]'
+                      : 'fill-slate-800 text-slate-700'
+                  }`}
+                />
+              ))}
+              <span className="font-black font-mono ml-1.5 text-xs text-amber-300">
+                {game.rating.toFixed(1)}<span className="text-slate-400 text-[10px] font-normal">/5</span>
+              </span>
+            </div>
+            <span className="text-[10px] text-slate-400 group-hover:underline">
+              {game.ratingCount.toLocaleString()} player ratings
+            </span>
+          </button>
+
+          {/* Plays count */}
+          <div className="flex flex-col items-end text-right">
+            <div className="flex items-center gap-1 text-cyan-300 font-mono text-xs font-bold">
+              <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
+              <span>{formatPlays(game.playCount)}</span>
+            </div>
+            <span className="text-[10px] text-slate-400">plays</span>
+          </div>
+        </div>
+
+        {/* Expanded Controls Drawer */}
         {showDetails && (
-          <div className="pt-2 border-t border-slate-800/80 space-y-2.5 text-xs animate-in fade-in duration-200">
-            <p className="text-slate-400 text-xs leading-relaxed">
-              {game.description}
-            </p>
-
-            {/* Quick ad quote highlight */}
-            {game.hypeAd && (
-              <div className="p-2 rounded bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] flex items-center justify-between">
-                <span className="truncate italic">“{game.hypeAd.hypeQuote}”</span>
-                <button
-                  onClick={() => onPreviewAd(game)}
-                  className="ml-2 text-cyan-300 hover:underline font-bold shrink-0 cursor-pointer"
-                >
-                  Watch Ad
-                </button>
-              </div>
-            )}
-
-            {game.controls.length > 0 && (
+          <div className="pt-2 text-xs space-y-2 border-t border-slate-800 animate-fadeIn">
+            <div>
+              <span className="text-slate-400 font-mono text-[10px] uppercase tracking-wider block mb-1">
+                Controls:
+              </span>
               <div className="space-y-1">
-                <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                  <Terminal className="w-3 h-3 text-cyan-400" />
-                  <span>Controls</span>
-                </div>
-                <div className="grid grid-cols-2 gap-1 text-[11px]">
-                  {game.controls.slice(0, 4).map((ctrl, idx) => (
-                    <div key={idx} className="bg-slate-950/70 rounded px-1.5 py-0.5 border border-slate-800 flex items-center justify-between">
-                      <span className="font-mono text-cyan-300 font-semibold">{ctrl.key}</span>
-                      <span className="text-slate-400 truncate ml-1">{ctrl.action}</span>
-                    </div>
-                  ))}
-                </div>
+                {game.controls.map((ctrl, i) => (
+                  <div key={i} className="flex justify-between text-[11px] text-slate-300">
+                    <span className="font-mono text-cyan-300 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">
+                      {ctrl.key}
+                    </span>
+                    <span className="text-slate-400">{ctrl.action}</span>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
 
-            {game.features.length > 0 && (
-              <div className="space-y-0.5">
-                <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                  <Layers className="w-3 h-3 text-cyan-400" />
-                  <span>Highlights</span>
-                </div>
-                <ul className="text-slate-300 text-[11px] space-y-0.5">
-                  {game.features.slice(0, 2).map((feat, idx) => (
-                    <li key={idx} className="truncate">• {feat}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {game.id === 'escape-road' && (
-              <div className="pt-1">
-                <a
-                  href="https://sites.google.com/view/drive-u-7-home/escape-road"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[11px] text-cyan-400 hover:text-cyan-300 underline font-medium"
-                >
-                  <span>Google Sites Unblocked Mirror</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            )}
+            <div className="pt-1 text-[11px] text-slate-400">
+              <span className="text-slate-500">Tech:</span> {game.techStack.join(', ')}
+            </div>
           </div>
         )}
 
@@ -221,44 +257,51 @@ export function GameCard({
         <div className="pt-3 border-t border-slate-800/80 mt-auto flex items-center gap-2">
           {game.status === 'live' ? (
             <>
-              {game.id === 'music-stream' ? (
+              {isLocked ? (
                 <button
-                  onClick={() => onPlayModal(game)}
+                  onClick={() => onOpenVipModal(game)}
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold text-xs transition-transform transform active:scale-98 shadow-sm shadow-amber-500/20 cursor-pointer"
+                >
+                  <Lock className="w-3.5 h-3.5 fill-slate-950" />
+                  <span>VIP Locked ($5 or 500 Pts)</span>
+                </button>
+              ) : (
+                <button
+                  onClick={handleGameLaunch}
                   className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm shadow-cyan-500/20 cursor-pointer"
                 >
                   <Play className="w-3.5 h-3.5 fill-slate-950" />
-                  <span>Stream Music</span>
+                  <span>{game.category === 'other' ? 'Stream' : 'Play Direct'}</span>
                 </button>
-              ) : (
+              )}
+
+              {/* Details toggle */}
+              <button
+                onClick={() => setShowDetails(!showDetails)}
+                className="p-2 rounded-xl bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition-colors cursor-pointer"
+                title={showDetails ? 'Hide details' : 'Show controls'}
+              >
+                {showDetails ? <ChevronUp className="w-3.5 h-3.5 text-cyan-400" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
+
+              {/* Host/External mirror */}
+              {game.isExternal ? (
                 <a
                   href={game.playUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors shadow-sm shadow-cyan-500/20"
+                  className="p-2 rounded-xl bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-cyan-300 border border-slate-800 transition-colors"
+                  title="Open direct mirror in new tab"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  <span>{game.id === 'roblox-cloud' ? 'Play (now.gg)' : (game.directPlayOnly ? 'Play Direct' : 'Play')}</span>
                 </a>
-              )}
-
-              {/* Preview Ad Button in Footer */}
-              <button
-                onClick={() => onPreviewAd(game)}
-                className="inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 hover:text-amber-200 border border-amber-500/30 text-xs font-semibold transition-colors cursor-pointer"
-                title="Watch preview ad about this game"
-              >
-                <Tv className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Ad</span>
-              </button>
-
-              {!game.directPlayOnly && (
+              ) : (
                 <button
-                  onClick={() => onPlayModal(game)}
-                  className="inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold transition-colors cursor-pointer"
-                  title="Play inside embedded frame"
+                  onClick={handleGameLaunch}
+                  className="p-2 rounded-xl bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-cyan-300 border border-slate-800 transition-colors cursor-pointer"
+                  title="Launch 0% lag canvas player"
                 >
-                  <Play className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>In-App</span>
+                  <Zap className="w-3.5 h-3.5 text-cyan-400" />
                 </button>
               )}
             </>
@@ -267,27 +310,6 @@ export function GameCard({
               Coming Soon
             </div>
           )}
-
-          {/* Toggle Details */}
-          <button
-            onClick={() => setShowDetails(!showDetails)}
-            className="p-2 rounded-xl bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition-colors cursor-pointer"
-            title={showDetails ? 'Hide details' : 'Show controls and details'}
-            aria-label="Toggle details"
-          >
-            {showDetails ? <ChevronUp className="w-3.5 h-3.5 text-cyan-400" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          </button>
-
-          {/* Repo / Host Link */}
-          <a
-            href={game.repoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-xl bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition-colors"
-            title={game.directPlayOnly ? 'Direct link to host' : (game.isExternal ? 'Visit host site' : 'View repository on GitHub')}
-          >
-            {game.isExternal ? <Globe className="w-3.5 h-3.5 text-cyan-400" /> : <Github className="w-3.5 h-3.5" />}
-          </a>
         </div>
 
       </div>
